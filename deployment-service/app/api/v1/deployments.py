@@ -23,32 +23,34 @@ from ..schemas.deployment import (
     DeploymentScaleRequest,
 )
 from ..dependencies import get_current_active_user
-from ..services.deployment_manager import DeploymentManager
+from ...services.deployment_manager import DeploymentManager
 
 router = APIRouter()
 
 
-@router.post("/", response_model=DeploymentResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/", response_model=DeploymentResponse, status_code=status.HTTP_201_CREATED
+)
 async def create_deployment(
     deployment_request: DeploymentCreateRequest,
     background_tasks: BackgroundTasks,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ) -> DeploymentResponse:
     """
     Create a new deployment for an MCP server.
-    
+
     Args:
         deployment_request: Deployment creation request
         background_tasks: Background task manager
         request: FastAPI request object
         db: Database session
         current_user: Current authenticated user
-        
+
     Returns:
         DeploymentResponse: Created deployment information
-        
+
     Raises:
         HTTPException: If MCP server not found or not ready
     """
@@ -57,30 +59,29 @@ async def create_deployment(
         select(MCPServer).where(
             and_(
                 MCPServer.id == deployment_request.mcp_server_id,
-                MCPServer.owner_id == current_user.id
+                MCPServer.owner_id == current_user.id,
             )
         )
     )
     mcp_server = result.scalar_one_or_none()
-    
+
     if not mcp_server:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="MCP server not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="MCP server not found"
         )
-    
+
     if mcp_server.status != MCPServerStatus.READY:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"MCP server must be in READY status, currently: {mcp_server.status}"
+            detail=f"MCP server must be in READY status, currently: {mcp_server.status}",
         )
-    
+
     if not mcp_server.docker_image_name:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="MCP server does not have a Docker image"
+            detail="MCP server does not have a Docker image",
         )
-    
+
     # Create deployment record
     deployment = Deployment(
         name=deployment_request.name,
@@ -96,34 +97,32 @@ async def create_deployment(
         mcp_server_id=mcp_server.id,
         owner_id=current_user.id,
     )
-    
+
     db.add(deployment)
     await db.commit()
     await db.refresh(deployment)
-    
+
     # Start deployment process in background
     deployment_manager = DeploymentManager(request.app.state.k8s_manager)
     background_tasks.add_task(
-        deployment_manager.deploy_mcp_server,
-        deployment.id,
-        mcp_server
+        deployment_manager.deploy_mcp_server, deployment.id, mcp_server
     )
-    
+
     return DeploymentResponse.from_orm(deployment)
 
 
 @router.get("/", response_model=DeploymentList)
 async def list_deployments(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ) -> DeploymentList:
     """
     List deployments for the current user.
-    
+
     Args:
         db: Database session
         current_user: Current authenticated user
-        
+
     Returns:
         DeploymentList: List of deployments
     """
@@ -133,7 +132,7 @@ async def list_deployments(
         .order_by(Deployment.created_at.desc())
     )
     deployments = result.scalars().all()
-    
+
     return DeploymentList(
         items=[DeploymentResponse.from_orm(deployment) for deployment in deployments]
     )
@@ -143,38 +142,34 @@ async def list_deployments(
 async def get_deployment(
     deployment_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ) -> DeploymentResponse:
     """
     Get a specific deployment.
-    
+
     Args:
         deployment_id: Deployment ID
         db: Database session
         current_user: Current authenticated user
-        
+
     Returns:
         DeploymentResponse: Deployment details
-        
+
     Raises:
         HTTPException: If deployment not found or access denied
     """
     result = await db.execute(
         select(Deployment).where(
-            and_(
-                Deployment.id == deployment_id,
-                Deployment.owner_id == current_user.id
-            )
+            and_(Deployment.id == deployment_id, Deployment.owner_id == current_user.id)
         )
     )
     deployment = result.scalar_one_or_none()
-    
+
     if not deployment:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Deployment not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Deployment not found"
         )
-    
+
     return DeploymentResponse.from_orm(deployment)
 
 
@@ -185,11 +180,11 @@ async def update_deployment(
     background_tasks: BackgroundTasks,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ) -> DeploymentResponse:
     """
     Update a deployment.
-    
+
     Args:
         deployment_id: Deployment ID
         update_request: Update request
@@ -197,45 +192,38 @@ async def update_deployment(
         request: FastAPI request object
         db: Database session
         current_user: Current authenticated user
-        
+
     Returns:
         DeploymentResponse: Updated deployment
-        
+
     Raises:
         HTTPException: If deployment not found or access denied
     """
     result = await db.execute(
         select(Deployment).where(
-            and_(
-                Deployment.id == deployment_id,
-                Deployment.owner_id == current_user.id
-            )
+            and_(Deployment.id == deployment_id, Deployment.owner_id == current_user.id)
         )
     )
     deployment = result.scalar_one_or_none()
-    
+
     if not deployment:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Deployment not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Deployment not found"
         )
-    
+
     # Update deployment fields
     update_dict = update_request.dict(exclude_unset=True)
     for field, value in update_dict.items():
         setattr(deployment, field, value)
-    
+
     deployment.status = DeploymentStatus.UPDATING
     await db.commit()
     await db.refresh(deployment)
-    
+
     # Start update process in background
     deployment_manager = DeploymentManager(request.app.state.k8s_manager)
-    background_tasks.add_task(
-        deployment_manager.update_deployment,
-        deployment.id
-    )
-    
+    background_tasks.add_task(deployment_manager.update_deployment, deployment.id)
+
     return DeploymentResponse.from_orm(deployment)
 
 
@@ -246,11 +234,11 @@ async def scale_deployment(
     background_tasks: BackgroundTasks,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ) -> DeploymentResponse:
     """
     Scale a deployment.
-    
+
     Args:
         deployment_id: Deployment ID
         scale_request: Scale request
@@ -258,43 +246,37 @@ async def scale_deployment(
         request: FastAPI request object
         db: Database session
         current_user: Current authenticated user
-        
+
     Returns:
         DeploymentResponse: Updated deployment
-        
+
     Raises:
         HTTPException: If deployment not found or access denied
     """
     result = await db.execute(
         select(Deployment).where(
-            and_(
-                Deployment.id == deployment_id,
-                Deployment.owner_id == current_user.id
-            )
+            and_(Deployment.id == deployment_id, Deployment.owner_id == current_user.id)
         )
     )
     deployment = result.scalar_one_or_none()
-    
+
     if not deployment:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Deployment not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Deployment not found"
         )
-    
+
     # Update replica count
     deployment.replicas = scale_request.replicas
     deployment.status = DeploymentStatus.SCALING
     await db.commit()
     await db.refresh(deployment)
-    
+
     # Start scaling process in background
     deployment_manager = DeploymentManager(request.app.state.k8s_manager)
     background_tasks.add_task(
-        deployment_manager.scale_deployment,
-        deployment.id,
-        scale_request.replicas
+        deployment_manager.scale_deployment, deployment.id, scale_request.replicas
     )
-    
+
     return DeploymentResponse.from_orm(deployment)
 
 
@@ -303,47 +285,43 @@ async def get_deployment_logs(
     deployment_id: UUID,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ) -> DeploymentLogsResponse:
     """
     Get deployment logs.
-    
+
     Args:
         deployment_id: Deployment ID
         request: FastAPI request object
         db: Database session
         current_user: Current authenticated user
-        
+
     Returns:
         DeploymentLogsResponse: Deployment logs
-        
+
     Raises:
         HTTPException: If deployment not found or access denied
     """
     result = await db.execute(
         select(Deployment).where(
-            and_(
-                Deployment.id == deployment_id,
-                Deployment.owner_id == current_user.id
-            )
+            and_(Deployment.id == deployment_id, Deployment.owner_id == current_user.id)
         )
     )
     deployment = result.scalar_one_or_none()
-    
+
     if not deployment:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Deployment not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Deployment not found"
         )
-    
+
     # Get logs from Kubernetes
     deployment_manager = DeploymentManager(request.app.state.k8s_manager)
     logs = await deployment_manager.get_deployment_logs(deployment)
-    
+
     return DeploymentLogsResponse(
         deployment_id=deployment.id,
         logs=logs,
-        deployment_logs=deployment.deployment_logs
+        deployment_logs=deployment.deployment_logs,
     )
 
 
@@ -353,50 +331,43 @@ async def stop_deployment(
     background_tasks: BackgroundTasks,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ) -> dict:
     """
     Stop a deployment.
-    
+
     Args:
         deployment_id: Deployment ID
         background_tasks: Background task manager
         request: FastAPI request object
         db: Database session
         current_user: Current authenticated user
-        
+
     Returns:
         dict: Success message
-        
+
     Raises:
         HTTPException: If deployment not found or access denied
     """
     result = await db.execute(
         select(Deployment).where(
-            and_(
-                Deployment.id == deployment_id,
-                Deployment.owner_id == current_user.id
-            )
+            and_(Deployment.id == deployment_id, Deployment.owner_id == current_user.id)
         )
     )
     deployment = result.scalar_one_or_none()
-    
+
     if not deployment:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Deployment not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Deployment not found"
         )
-    
+
     deployment.status = DeploymentStatus.STOPPING
     await db.commit()
-    
+
     # Start stop process in background
     deployment_manager = DeploymentManager(request.app.state.k8s_manager)
-    background_tasks.add_task(
-        deployment_manager.stop_deployment,
-        deployment.id
-    )
-    
+    background_tasks.add_task(deployment_manager.stop_deployment, deployment.id)
+
     return {"message": "Deployment stop initiated"}
 
 
@@ -406,44 +377,37 @@ async def delete_deployment(
     background_tasks: BackgroundTasks,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_active_user)
+    current_user: User = Depends(get_current_active_user),
 ) -> None:
     """
     Delete a deployment.
-    
+
     Args:
         deployment_id: Deployment ID
         background_tasks: Background task manager
         request: FastAPI request object
         db: Database session
         current_user: Current authenticated user
-        
+
     Raises:
         HTTPException: If deployment not found or access denied
     """
     result = await db.execute(
         select(Deployment).where(
-            and_(
-                Deployment.id == deployment_id,
-                Deployment.owner_id == current_user.id
-            )
+            and_(Deployment.id == deployment_id, Deployment.owner_id == current_user.id)
         )
     )
     deployment = result.scalar_one_or_none()
-    
+
     if not deployment:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Deployment not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Deployment not found"
         )
-    
+
     # Start deletion process in background
     deployment_manager = DeploymentManager(request.app.state.k8s_manager)
-    background_tasks.add_task(
-        deployment_manager.delete_deployment,
-        deployment.id
-    )
-    
+    background_tasks.add_task(deployment_manager.delete_deployment, deployment.id)
+
     # Mark as deleting but don't delete from DB yet
     deployment.status = DeploymentStatus.STOPPING
     await db.commit()

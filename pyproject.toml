@@ -6,9 +6,9 @@ authors = ["MCP Hub Team <team@mcphub.com>"]
 readme = "README.md"
 packages = [
     {include = "core"},
-    {include = "registration_service"},
-    {include = "generator_service"},
-    {include = "deployment_service"}
+    {include = "registration-service"},
+    {include = "generator-service"},
+    {include = "deployment-service"}
 ]
 
 [tool.poetry.dependencies]
