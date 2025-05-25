@@ -22,26 +22,26 @@ export const registrationsApi = {
     if (params?.search) searchParams.append('search', params.search);
 
     const query = searchParams.toString();
-    return apiClient.get(`/api/v1/registrations${query ? `?${query}` : ''}`);
+    return apiClient.get(`/api/v1/registrations${query ? `?${query}` : ''}`, 'registration');
   },
 
   async get(id: string): Promise<APIRegistration> {
-    return apiClient.get(`/api/v1/registrations/${id}`);
+    return apiClient.get(`/api/v1/registrations/${id}`, 'registration');
   },
 
   async create(data: APIRegistrationCreate): Promise<APIRegistration> {
-    return apiClient.post('/api/v1/registrations', data);
+    return apiClient.post('/api/v1/registrations', data, 'registration');
   },
 
   async update(id: string, data: APIRegistrationUpdate): Promise<APIRegistration> {
-    return apiClient.put(`/api/v1/registrations/${id}`, data);
+    return apiClient.put(`/api/v1/registrations/${id}`, data, 'registration');
   },
 
   async delete(id: string): Promise<void> {
-    return apiClient.delete(`/api/v1/registrations/${id}`);
+    return apiClient.delete(`/api/v1/registrations/${id}`, 'registration');
   },
 
   async validate(data: APIValidationRequest): Promise<APIValidationResponse> {
-    return apiClient.post('/api/v1/registrations/validate', data);
+    return apiClient.post('/api/v1/registrations/validate', data, 'registration');
   },
 };

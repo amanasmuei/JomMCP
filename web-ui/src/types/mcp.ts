@@ -59,3 +59,45 @@ export interface Deployment {
   created_at: string;
   updated_at: string;
 }
+
+export interface DeploymentCreateRequest {
+  mcp_server_id: string;
+  name: string;
+  namespace?: string;
+  cpu_limit?: string;
+  memory_limit?: string;
+  replicas?: number;
+  port?: number;
+  environment_variables?: Record<string, string>;
+  deployment_config?: Record<string, any>;
+  health_check_path?: string;
+}
+
+export interface DeploymentUpdateRequest {
+  name?: string;
+  cpu_limit?: string;
+  memory_limit?: string;
+  environment_variables?: Record<string, string>;
+  deployment_config?: Record<string, any>;
+  health_check_path?: string;
+}
+
+export interface DeploymentScaleRequest {
+  replicas: number;
+}
+
+export interface DeploymentList {
+  items: Deployment[];
+}
+
+export interface DeploymentLogsResponse {
+  deployment_id: string;
+  logs: string;
+  deployment_logs?: string;
+}
+
+export interface WebSocketMessage {
+  type: 'generation_status' | 'deployment_status' | 'error' | 'notification';
+  data: any;
+  timestamp: string;
+}

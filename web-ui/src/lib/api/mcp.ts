@@ -8,38 +8,26 @@ import {
 
 export const mcpApi = {
   async list(): Promise<MCPServerList> {
-    return apiClient.get('/api/v1/generation', {
-      baseURL: 'http://localhost:8082',
-    });
+    return apiClient.get('/api/v1/generation', 'generator');
   },
 
   async get(id: string): Promise<MCPServer> {
-    return apiClient.get(`/api/v1/generation/${id}`, {
-      baseURL: 'http://localhost:8082',
-    });
+    return apiClient.get(`/api/v1/generation/${id}`, 'generator');
   },
 
   async generate(data: MCPServerGenerationRequest): Promise<MCPServer> {
-    return apiClient.post('/api/v1/generation', data, {
-      baseURL: 'http://localhost:8082',
-    });
+    return apiClient.post('/api/v1/generation', data, 'generator');
   },
 
   async getStatus(id: string): Promise<GenerationStatusResponse> {
-    return apiClient.get(`/api/v1/generation/${id}/status`, {
-      baseURL: 'http://localhost:8082',
-    });
+    return apiClient.get(`/api/v1/generation/${id}/status`, 'generator');
   },
 
   async regenerate(id: string): Promise<MCPServer> {
-    return apiClient.post(`/api/v1/generation/${id}/regenerate`, {}, {
-      baseURL: 'http://localhost:8082',
-    });
+    return apiClient.post(`/api/v1/generation/${id}/regenerate`, {}, 'generator');
   },
 
   async delete(id: string): Promise<void> {
-    return apiClient.delete(`/api/v1/generation/${id}`, {
-      baseURL: 'http://localhost:8082',
-    });
+    return apiClient.delete(`/api/v1/generation/${id}`, 'generator');
   },
 };
