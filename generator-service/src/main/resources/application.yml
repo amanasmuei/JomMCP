@@ -1,0 +1,118 @@
+spring:
+  application:
+    name: generator-service
+  
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mcphub}
+    username: ${DB_USERNAME:mcphub}
+    password: ${DB_PASSWORD:mcphub_dev_password}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080/auth/realms/mcphub}
+
+server:
+  port: ${SERVER_PORT:8082}
+  servlet:
+    context-path: /api/v1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    com.mcphub: ${LOG_LEVEL:INFO}
+
+# Application specific configuration
+mcphub:
+  generator:
+    template:
+      path: ${TEMPLATE_PATH:classpath:/templates}
+      cache-enabled: true
+      cache-ttl-minutes: 60
+    
+    docker:
+      registry:
+        url: ${DOCKER_REGISTRY_URL:localhost:5000}
+        username: ${DOCKER_REGISTRY_USERNAME:}
+        password: ${DOCKER_REGISTRY_PASSWORD:}
+        namespace: ${DOCKER_REGISTRY_NAMESPACE:mcphub}
+      
+      build:
+        timeout-minutes: 10
+        memory-limit: 2g
+        cpu-limit: 1
+        cleanup-after-build: true
+    
+    code-generation:
+      output-directory: ${CODE_OUTPUT_DIR:/tmp/mcphub/generated}
+      cleanup-after-generation: false
+      max-concurrent-generations: 5
+    
+    async:
+      core-pool-size: 5
+      max-pool-size: 20
+      queue-capacity: 100
+
+---
+# Development profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    com.mcphub: DEBUG
+
+mcphub:
+  generator:
+    docker:
+      registry:
+        url: localhost:5000
+        namespace: mcphub-dev
+    code-generation:
+      cleanup-after-generation: false
+
+---
+# Production profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+mcphub:
+  generator:
+    docker:
+      build:
+        timeout-minutes: 15
+        memory-limit: 4g
+        cpu-limit: 2
+    code-generation:
+      cleanup-after-generation: true
+      max-concurrent-generations: 10

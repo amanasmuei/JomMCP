@@ -1,0 +1,166 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: mcp-hub-postgres
+    environment:
+      POSTGRES_DB: mcphub
+      POSTGRES_USER: mcphub
+      POSTGRES_PASSWORD: mcphub_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - mcp-hub-network
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: mcp-hub-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mcp-hub-network
+
+  # Registration Service
+  registration-service:
+    build:
+      context: ./registration-service
+      dockerfile: Dockerfile
+    container_name: mcp-hub-registration
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mcphub:mcphub_dev_password@postgres:5432/mcphub
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: docker
+      DEBUG: "false"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mcp-hub-network
+    restart: unless-stopped
+
+  # Generator Service
+  generator-service:
+    build:
+      context: ./generator-service
+      dockerfile: Dockerfile
+    container_name: mcp-hub-generator
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mcphub:mcphub_dev_password@postgres:5432/mcphub
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: docker
+      DEBUG: "false"
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mcp-hub-network
+    restart: unless-stopped
+
+  # Deployment Service
+  deployment-service:
+    build:
+      context: ./deployment-service
+      dockerfile: Dockerfile
+    container_name: mcp-hub-deployment
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mcphub:mcphub_dev_password@postgres:5432/mcphub
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: docker
+      DEBUG: "false"
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - mcp-hub-network
+    restart: unless-stopped
+
+  # Web UI (Development)
+  web-ui:
+    build:
+      context: ./web-ui
+      dockerfile: Dockerfile.dev
+    container_name: mcp-hub-web-ui
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web-ui/src:/app/src
+      - ./web-ui/public:/app/public
+    networks:
+      - mcp-hub-network
+    restart: unless-stopped
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: mcp-hub-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - registration-service
+      - generator-service
+      - deployment-service
+      - web-ui
+    networks:
+      - mcp-hub-network
+    restart: unless-stopped
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mcp-hub-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - mcp-hub-network
+    restart: unless-stopped
+
+  # Grafana for dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mcp-hub-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - mcp-hub-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  mcp-hub-network:
+    driver: bridge
