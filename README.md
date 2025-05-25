@@ -1,34 +1,71 @@
 # MCP Hub Platform
 
-A comprehensive platform for automatically generating and deploying MCP (Model Context Protocol) servers from user-provided APIs.
+A comprehensive platform for automatically generating and deploying Model Context Protocol (MCP) servers from existing APIs.
 
 ## Overview
 
-The MCP Hub platform enables users to:
-- Register and configure their APIs (REST, GraphQL, etc.)
-- Automatically generate MCP server code that wraps these APIs as MCP tools
-- Deploy and manage generated MCP servers
-- Monitor and manage running servers
-- Get documentation on connecting servers to MCP clients like Claude
+The MCP Hub Platform enables developers to quickly transform their existing APIs into MCP-compatible servers that can be used with AI assistants like Claude. The platform provides:
+
+- **API Registration**: Register and validate your existing APIs
+- **Automatic Code Generation**: Generate optimized MCP server code
+- **Container Deployment**: Deploy servers to Docker/Kubernetes
+- **Monitoring & Management**: Track performance and manage deployments
+- **Real-time Updates**: WebSocket-based live status updates
 
 ## Architecture
 
-### Core Components
+The platform follows a microservices architecture with the following components:
 
-1. **Core Module** - Shared domain models, utilities, and common functionality
-2. **Registration Service** - API registration, validation, and configuration management
-3. **Generator Service** - Dynamic MCP server code generation
-4. **Deployment Service** - Container orchestration and server lifecycle management
-5. **Web UI** - React-based user interface for platform management
+### Core Services
 
-### Technology Stack
+1. **Registration Service** (Port 8081)
+   - User authentication and management
+   - API registration and validation
+   - Credential management with encryption
 
-- **Backend**: Python 3.11+, FastAPI, Python MCP SDK
-- **Database**: PostgreSQL with SQLAlchemy ORM
-- **Container Orchestration**: Docker, Kubernetes
-- **Frontend**: Next.js 14+ with TypeScript (App Router)
-- **Security**: FastAPI Security, python-jose for JWT, encrypted credential storage
-- **Monitoring**: FastAPI metrics, Prometheus integration
+2. **Generator Service** (Port 8082)
+   - MCP server code generation
+   - Template-based code creation
+   - Docker image building
+
+3. **Deployment Service** (Port 8083)
+   - Container orchestration
+   - Kubernetes deployment management
+   - Health monitoring and scaling
+
+4. **Web UI** (Port 3000)
+   - Next.js-based user interface
+   - Real-time status updates
+   - API and deployment management
+
+### Infrastructure
+
+- **PostgreSQL**: Primary database for all services
+- **Redis**: Caching and session management
+- **Docker**: Containerization platform
+- **Kubernetes**: Container orchestration (optional)
+
+## Technology Stack
+
+### Backend
+- **Framework**: FastAPI (Python 3.11+)
+- **Database**: PostgreSQL with SQLAlchemy (async)
+- **Security**: FastAPI Security with JWT
+- **API Documentation**: OpenAPI 3.0 (Swagger)
+- **Monitoring**: Prometheus + Structured Logging
+
+### Frontend
+- **Framework**: Next.js 14+ with TypeScript (App Router)
+- **Styling**: Tailwind CSS
+- **State Management**: React Query
+- **Real-time**: WebSocket connections
+- **Testing**: Jest + React Testing Library
+
+### DevOps
+- **Containerization**: Docker & Docker Compose
+- **Orchestration**: Kubernetes
+- **CI/CD**: GitHub Actions
+- **Monitoring**: Prometheus + Grafana
 
 ## Quick Start
 
