@@ -30,9 +30,64 @@ export class ErrorBoundary extends Component<Props, State> {
 
     // Log error to monitoring service
     console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
-    // In production, you would send this to your error tracking service
-    // e.g., Sentry, LogRocket, etc.
+
+    // Enhanced error reporting
+    this.reportError(error, errorInfo);
+  }
+
+  private reportError(error: Error, errorInfo: ErrorInfo) {
+    // Create error report
+    const errorReport = {
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+      userId: this.getUserId(), // You can implement this based on your auth system
+    };
+
+    // In development, just log to console
+    if (process.env.NODE_ENV === 'development') {
+      console.group('🚨 Error Report');
+      console.error('Error:', error);
+      console.error('Error Info:', errorInfo);
+      console.error('Full Report:', errorReport);
+      console.groupEnd();
+      return;
+    }
+
+    // In production, send to error tracking service
+    try {
+      // Example: Send to your error tracking service
+      // fetch('/api/errors', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(errorReport),
+      // });
+
+      // For now, store in localStorage as fallback
+      const errors = JSON.parse(localStorage.getItem('error_reports') || '[]');
+      errors.push(errorReport);
+      // Keep only last 10 errors
+      if (errors.length > 10) {
+        errors.splice(0, errors.length - 10);
+      }
+      localStorage.setItem('error_reports', JSON.stringify(errors));
+    } catch (reportingError) {
+      console.error('Failed to report error:', reportingError);
+    }
+  }
+
+  private getUserId(): string | null {
+    // This should be implemented based on your authentication system
+    // For now, return null or get from localStorage/context
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      return user?.id || null;
+    } catch {
+      return null;
+    }
   }
 
   render() {
@@ -58,7 +113,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   </p>
                 </div>
               </div>
-              
+
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <div className="mt-4">
                   <details className="text-sm">
@@ -82,7 +137,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   </details>
                 </div>
               )}
-              
+
               <div className="mt-6 flex space-x-3">
                 <button
                   onClick={() => window.location.reload()}

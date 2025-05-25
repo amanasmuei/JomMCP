@@ -24,6 +24,7 @@ const navigation = [
   { name: 'MCP Servers', href: '/dashboard/mcp-servers', icon: CpuChipIcon },
   { name: 'Deployments', href: '/dashboard/deployments', icon: CloudIcon },
   { name: 'Documentation', href: '/dashboard/docs', icon: DocumentTextIcon },
+  { name: 'Administration', href: '/dashboard/admin', icon: ShieldCheckIcon },
 ];
 
 interface NavigationProps {

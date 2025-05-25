@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
+import { logger } from '../logger';
+import { handleApiError, getUserFriendlyMessage } from '../error-handling';
 
 class ApiClient {
   private registrationClient: AxiosInstance;
@@ -40,23 +42,58 @@ class ApiClient {
     const clients = [this.registrationClient, this.generatorClient, this.deploymentClient];
 
     clients.forEach((client) => {
-      // Request interceptor to add auth token
+      // Request interceptor to add auth token and logging
       client.interceptors.request.use(
         (config) => {
           const token = Cookies.get('access_token');
           if (token) {
             config.headers.Authorization = `Bearer ${token}`;
           }
+
+          // Log API request
+          const startTime = Date.now();
+          config.metadata = { startTime };
+
+          logger.logApiRequest(
+            config.method?.toUpperCase() || 'UNKNOWN',
+            `${config.baseURL}${config.url}`,
+            undefined,
+            undefined,
+            {
+              service: this.getServiceFromBaseURL(config.baseURL || ''),
+              requestData: config.data ? 'present' : 'none'
+            }
+          );
+
           return config;
         },
         (error) => {
+          logger.error('API request setup failed', { error: error.message }, 'api');
           return Promise.reject(error);
         }
       );
 
       // Response interceptor to handle errors and token refresh
       client.interceptors.response.use(
-        (response) => response,
+        (response) => {
+          // Log successful response
+          const duration = response.config.metadata?.startTime
+            ? Date.now() - response.config.metadata.startTime
+            : undefined;
+
+          logger.logApiRequest(
+            response.config.method?.toUpperCase() || 'UNKNOWN',
+            `${response.config.baseURL}${response.config.url}`,
+            response.status,
+            duration,
+            {
+              service: this.getServiceFromBaseURL(response.config.baseURL || ''),
+              responseSize: JSON.stringify(response.data).length
+            }
+          );
+
+          return response;
+        },
         async (error) => {
           const originalRequest = error.config;
 
@@ -89,13 +126,35 @@ class ApiClient {
             }
           }
 
-          // Handle other errors
-          if (error.response?.status >= 500) {
-            toast.error('Server error. Please try again later.');
-          } else if (error.response?.status === 403) {
-            toast.error('You do not have permission to perform this action.');
-          } else if (error.response?.data?.detail) {
-            toast.error(error.response.data.detail);
+          // Enhanced error handling with logging
+          const duration = error.config?.metadata?.startTime
+            ? Date.now() - error.config.metadata.startTime
+            : undefined;
+
+          // Log the error
+          logger.logApiRequest(
+            error.config?.method?.toUpperCase() || 'UNKNOWN',
+            `${error.config?.baseURL}${error.config?.url}`,
+            error.response?.status,
+            duration,
+            {
+              service: this.getServiceFromBaseURL(error.config?.baseURL || ''),
+              errorMessage: error.message,
+              errorData: error.response?.data
+            }
+          );
+
+          // Handle the error with our error handler
+          const apiError = handleApiError(error, {
+            service: this.getServiceFromBaseURL(error.config?.baseURL || ''),
+            url: error.config?.url,
+            method: error.config?.method
+          });
+
+          // Show user-friendly message
+          const userMessage = getUserFriendlyMessage(apiError);
+          if (error.response?.status !== 401) { // Don't show toast for auth errors (handled by redirect)
+            toast.error(userMessage);
           }
 
           return Promise.reject(error);
@@ -115,6 +174,13 @@ class ApiClient {
       default:
         return this.registrationClient;
     }
+  }
+
+  private getServiceFromBaseURL(baseURL: string): string {
+    if (baseURL.includes('8081')) return 'registration';
+    if (baseURL.includes('8082')) return 'generator';
+    if (baseURL.includes('8083')) return 'deployment';
+    return 'unknown';
   }
 
   async get<T = any>(url: string, service: 'registration' | 'generator' | 'deployment' = 'registration', config?: AxiosRequestConfig): Promise<T> {

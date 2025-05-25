@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ metadata.title }}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 { color: #2c3e50; }
+        h1 { border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { border-bottom: 1px solid #ecf0f1; padding-bottom: 5px; }
+        .overview { background: #ecf0f1; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .endpoint { border: 1px solid #ddd; margin: 20px 0; border-radius: 5px; }
+        .endpoint-header { background: #3498db; color: white; padding: 10px; font-weight: bold; }
+        .endpoint-body { padding: 15px; }
+        .method { 
+            display: inline-block; 
+            padding: 4px 8px; 
+            border-radius: 3px; 
+            color: white; 
+            font-weight: bold; 
+            margin-right: 10px;
+        }
+        .method.GET { background: #27ae60; }
+        .method.POST { background: #f39c12; }
+        .method.PUT { background: #8e44ad; }
+        .method.DELETE { background: #e74c3c; }
+        .method.PATCH { background: #16a085; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        code { background: #ecf0f1; padding: 2px 4px; border-radius: 3px; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0; }
+        .info-card { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #3498db; }
+        .toc { background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { margin: 5px 0; }
+        .toc a { text-decoration: none; color: #3498db; }
+        .toc a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ metadata.title }}</h1>
+        
+        <div class="overview">
+            <p>{{ overview.description }}</p>
+        </div>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#mcp-info">MCP Server Information</a></li>
+                {% if endpoints %}<li><a href="#endpoints">API Endpoints</a></li>{% endif %}
+                {% if schemas %}<li><a href="#schemas">Data Schemas</a></li>{% endif %}
+                {% if examples %}<li><a href="#examples">Usage Examples</a></li>{% endif %}
+                <li><a href="#configuration">Configuration</a></li>
+            </ul>
+        </div>
+
+        <h2 id="overview">Overview</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <strong>API Name:</strong><br>{{ overview.api_name }}
+            </div>
+            <div class="info-card">
+                <strong>API Type:</strong><br>{{ metadata.api_type }}
+            </div>
+            <div class="info-card">
+                <strong>Base URL:</strong><br><code>{{ metadata.base_url }}</code>
+            </div>
+            <div class="info-card">
+                <strong>Authentication:</strong><br>{{ overview.authentication }}
+            </div>
+        </div>
+        
+        {% if overview.api_description %}
+        <p>{{ overview.api_description }}</p>
+        {% endif %}
+
+        <h2 id="mcp-info">MCP Server Information</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <strong>Server ID:</strong><br><code>{{ mcp_info.server_id }}</code>
+            </div>
+            <div class="info-card">
+                <strong>Docker Image:</strong><br><code>{{ mcp_info.docker_image or "Not available" }}</code>
+            </div>
+            <div class="info-card">
+                <strong>Generated:</strong><br>{{ metadata.generated_at }}
+            </div>
+        </div>
+
+        {% if endpoints %}
+        <h2 id="endpoints">API Endpoints</h2>
+        {% for endpoint in endpoints %}
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method {{ endpoint.method }}">{{ endpoint.method }}</span>
+                {{ endpoint.path }}
+            </div>
+            <div class="endpoint-body">
+                {% if endpoint.summary %}
+                <p><strong>Summary:</strong> {{ endpoint.summary }}</p>
+                {% endif %}
+                
+                {% if endpoint.description %}
+                <p>{{ endpoint.description }}</p>
+                {% endif %}
+
+                {% if endpoint.parameters %}
+                <h4>Parameters</h4>
+                <ul>
+                {% for param in endpoint.parameters %}
+                    <li><code>{{ param.name }}</code> ({{ param.in }}) - {{ param.description or "No description" }}</li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if endpoint.request_body %}
+                <h4>Request Body</h4>
+                <pre><code>{{ endpoint.request_body | tojson(indent=2) }}</code></pre>
+                {% endif %}
+
+                {% if endpoint.responses %}
+                <h4>Responses</h4>
+                <ul>
+                {% for status, response in endpoint.responses.items() %}
+                    <li><strong>{{ status }}:</strong> {{ response.description or "No description" }}</li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if endpoint.examples %}
+                <h4>Examples</h4>
+                {% for example in endpoint.examples %}
+                <h5>{{ example.title }}</h5>
+                <pre><code>{{ example.code }}</code></pre>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if schemas %}
+        <h2 id="schemas">Data Schemas</h2>
+        {% for schema_name, schema in schemas.items() %}
+        <h3>{{ schema_name }}</h3>
+        <pre><code>{{ schema | tojson(indent=2) }}</code></pre>
+        {% endfor %}
+        {% endif %}
+
+        {% if examples %}
+        <h2 id="examples">Usage Examples</h2>
+        {% for example in examples %}
+        <h3>{{ example.title }}</h3>
+        <pre><code>{{ example.code }}</code></pre>
+        {% endfor %}
+        {% endif %}
+
+        <h2 id="configuration">Configuration</h2>
+        {% if mcp_info.config %}
+        <pre><code>{{ mcp_info.config | tojson(indent=2) }}</code></pre>
+        {% else %}
+        <p>No additional configuration required.</p>
+        {% endif %}
+
+        <hr>
+        <p><em>Documentation generated automatically by MCP Hub Platform</em></p>
+    </div>
+</body>
+</html>

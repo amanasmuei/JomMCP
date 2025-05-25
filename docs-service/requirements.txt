@@ -1,0 +1,22 @@
+# Core FastAPI dependencies
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+pydantic[email]>=2.0.0
+
+# Database
+sqlalchemy>=2.0.0
+asyncpg>=0.28.0
+
+# Security
+python-jose[cryptography]>=3.3.0
+
+# Documentation generation
+jinja2>=3.1.0
+markdown>=3.5.0
+pygments>=2.16.0
+
+# HTTP client
+httpx>=0.24.0
+
+# Logging
+structlog>=23.0.0

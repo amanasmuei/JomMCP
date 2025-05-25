@@ -90,6 +90,29 @@ services:
       - mcp-hub-network
     restart: unless-stopped
 
+  # Documentation Service
+  docs-service:
+    build:
+      context: ./docs-service
+      dockerfile: Dockerfile
+    container_name: mcp-hub-docs
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mcphub:mcphub_dev_password@postgres:5432/mcphub
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: docker
+      DEBUG: "false"
+      DOCS_OUTPUT_DIRECTORY: /app/docs_output
+    ports:
+      - "8084:8003"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - docs_data:/app/docs_output
+    networks:
+      - mcp-hub-network
+    restart: unless-stopped
+
   # Web UI (Development)
   web-ui:
     build:
@@ -121,6 +144,7 @@ services:
       - registration-service
       - generator-service
       - deployment-service
+      - docs-service
       - web-ui
     networks:
       - mcp-hub-network
@@ -158,6 +182,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  docs_data:
   prometheus_data:
   grafana_data:
 
