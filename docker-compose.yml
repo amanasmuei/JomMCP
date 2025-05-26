@@ -103,7 +103,7 @@ services:
       DEBUG: "false"
       DOCS_OUTPUT_DIRECTORY: /app/docs_output
     ports:
-      - "8084:8003"
+      - "8084:8084"
     depends_on:
       - postgres
       - redis
@@ -144,7 +144,8 @@ services:
       dockerfile: Dockerfile.dev
     container_name: mcp-hub-web-ui
     environment:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:8081
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+      NEXT_PUBLIC_WS_BASE_URL: ws://localhost:8000
     ports:
       - "3000:3000"
     volumes:

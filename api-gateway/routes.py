@@ -11,22 +11,30 @@ logger = structlog.get_logger()
 
 api_router = APIRouter()
 
-# Service URL mappings
-SERVICE_URLS = {
-    "registration": "http://registration-service:8081",
-    "generator": "http://generator-service:8082",
-    "deployment": "http://deployment-service:8083",
-    "docs": "http://docs-service:8003",
-}
 
-# For local development
-if True:  # Replace with environment check
-    SERVICE_URLS = {
-        "registration": "http://localhost:8081",
-        "generator": "http://localhost:8082",
-        "deployment": "http://localhost:8083",
-        "docs": "http://localhost:8084",
-    }
+# Service URL mappings
+def get_service_urls():
+    """Get service URLs based on environment."""
+    from core.config import settings
+
+    if settings.environment == "docker":
+        return {
+            "registration": "http://registration-service:8081",
+            "generator": "http://generator-service:8082",
+            "deployment": "http://deployment-service:8083",
+            "docs": "http://docs-service:8084",
+        }
+    else:
+        # Local development
+        return {
+            "registration": "http://localhost:8081",
+            "generator": "http://localhost:8082",
+            "deployment": "http://localhost:8083",
+            "docs": "http://localhost:8084",
+        }
+
+
+SERVICE_URLS = get_service_urls()
 
 
 async def proxy_request(
@@ -78,8 +86,11 @@ async def proxy_request(
     query_params = dict(request.query_params)
 
     try:
-        # Make request to microservice
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        # Make request to microservice with redirect handling
+        async with httpx.AsyncClient(
+            timeout=30.0,
+            follow_redirects=False,  # Handle redirects manually to avoid 307 issues
+        ) as client:
             response = await client.request(
                 method=http_method,
                 url=target_url,
@@ -88,14 +99,73 @@ async def proxy_request(
                 params=query_params,
             )
 
+        # Handle redirects manually
+        if response.status_code in [301, 302, 307, 308]:
+            location = response.headers.get("location")
+            if location:
+                logger.warning(
+                    "Service returned redirect",
+                    service=service_name,
+                    original_url=target_url,
+                    redirect_location=location,
+                    status_code=response.status_code,
+                )
+                # For 307/308, preserve the original method and body
+                if response.status_code in [307, 308]:
+                    async with httpx.AsyncClient(timeout=30.0) as redirect_client:
+                        redirect_response = await redirect_client.request(
+                            method=http_method,
+                            url=location,
+                            headers=headers,
+                            content=body,
+                            params=query_params,
+                        )
+                        response = redirect_response
+
+        # Filter response headers to avoid conflicts
+        response_headers = {}
+        for key, value in response.headers.items():
+            # Skip headers that might cause issues
+            if key.lower() not in [
+                "content-encoding",
+                "content-length",
+                "transfer-encoding",
+                "connection",
+                "upgrade",
+                "server",
+            ]:
+                response_headers[key] = value
+
         # Forward response
         return StreamingResponse(
             iter([response.content]),
             status_code=response.status_code,
-            headers=dict(response.headers),
+            headers=response_headers,
             media_type=response.headers.get("content-type"),
         )
 
+    except httpx.ConnectError as e:
+        logger.error(
+            "Service connection failed",
+            service=service_name,
+            url=target_url,
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Service '{service_name}' is unavailable - connection failed",
+        )
+    except httpx.TimeoutException as e:
+        logger.error(
+            "Service request timeout",
+            service=service_name,
+            url=target_url,
+            error=str(e),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail=f"Service '{service_name}' request timed out",
+        )
     except httpx.RequestError as e:
         logger.error(
             "Service request failed", service=service_name, url=target_url, error=str(e)
