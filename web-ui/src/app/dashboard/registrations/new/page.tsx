@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMutation } from 'react-query';
+import { useMutation } from '@tanstack/react-query';
 import { registrationsApi } from '@/lib/api/registrations';
 import { APIRegistrationCreate } from '@/types/api';
 import toast from 'react-hot-toast';
@@ -24,7 +24,8 @@ export default function NewRegistrationPage() {
   const [isValidating, setIsValidating] = useState(false);
   const [validationResult, setValidationResult] = useState<any>(null);
 
-  const createMutation = useMutation(registrationsApi.create, {
+  const createMutation = useMutation({
+    mutationFn: registrationsApi.create,
     onSuccess: (data) => {
       toast.success('API registered successfully!');
       router.push(`/dashboard/registrations/${data.id}`);
@@ -71,7 +72,7 @@ export default function NewRegistrationPage() {
         credentials: formData.credentials,
       });
       setValidationResult(result);
-      
+
       if (result.is_valid) {
         toast.success('API validation successful!');
         if (result.detected_api_type && result.detected_api_type !== formData.api_type) {
@@ -156,7 +157,7 @@ export default function NewRegistrationPage() {
             </div>
           </div>
         );
-      case 'oauth2':
+      case 'oauth2_client_credentials':
         return (
           <div className="space-y-4">
             <div>
@@ -177,6 +178,71 @@ export default function NewRegistrationPage() {
                 value={formData.credentials?.client_secret || ''}
                 onChange={(e) => handleCredentialChange('client_secret', e.target.value)}
                 placeholder="Enter client secret"
+              />
+            </div>
+          </div>
+        );
+      case 'oauth2_authorization_code':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Client ID</label>
+              <input
+                type="text"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                value={formData.credentials?.client_id || ''}
+                onChange={(e) => handleCredentialChange('client_id', e.target.value)}
+                placeholder="Enter client ID"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Client Secret</label>
+              <input
+                type="password"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                value={formData.credentials?.client_secret || ''}
+                onChange={(e) => handleCredentialChange('client_secret', e.target.value)}
+                placeholder="Enter client secret"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Redirect URI</label>
+              <input
+                type="url"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                value={formData.credentials?.redirect_uri || ''}
+                onChange={(e) => handleCredentialChange('redirect_uri', e.target.value)}
+                placeholder="Enter redirect URI"
+              />
+            </div>
+          </div>
+        );
+      case 'jwt':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">JWT Token</label>
+              <textarea
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                rows={3}
+                value={formData.credentials?.token || ''}
+                onChange={(e) => handleCredentialChange('token', e.target.value)}
+                placeholder="Enter JWT token"
+              />
+            </div>
+          </div>
+        );
+      case 'custom':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Custom Headers (JSON)</label>
+              <textarea
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                rows={4}
+                value={formData.credentials?.headers || ''}
+                onChange={(e) => handleCredentialChange('headers', e.target.value)}
+                placeholder='{"Authorization": "Custom token", "X-API-Key": "value"}'
               />
             </div>
           </div>
@@ -213,7 +279,7 @@ export default function NewRegistrationPage() {
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                 Basic Information
               </h3>
-              
+
               <div className="grid grid-cols-1 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -306,7 +372,7 @@ export default function NewRegistrationPage() {
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                 Authentication
               </h3>
-              
+
               <div className="space-y-6">
                 <div>
                   <label htmlFor="authentication_type" className="block text-sm font-medium text-gray-700">
@@ -323,7 +389,9 @@ export default function NewRegistrationPage() {
                     <option value="api_key">API Key</option>
                     <option value="bearer_token">Bearer Token</option>
                     <option value="basic_auth">Basic Authentication</option>
-                    <option value="oauth2">OAuth 2.0</option>
+                    <option value="oauth2_client_credentials">OAuth 2.0 Client Credentials</option>
+                    <option value="oauth2_authorization_code">OAuth 2.0 Authorization Code</option>
+                    <option value="jwt">JWT</option>
                   </select>
                 </div>
 
@@ -343,7 +411,7 @@ export default function NewRegistrationPage() {
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                 Health Check (Optional)
               </h3>
-              
+
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                   <label htmlFor="health_check_url" className="block text-sm font-medium text-gray-700">
@@ -389,10 +457,10 @@ export default function NewRegistrationPage() {
             </Link>
             <button
               type="submit"
-              disabled={createMutation.isLoading}
+              disabled={createMutation.isPending}
               className="btn-primary"
             >
-              {createMutation.isLoading ? 'Registering...' : 'Register API'}
+              {createMutation.isPending ? 'Registering...' : 'Register API'}
             </button>
           </div>
         </form>

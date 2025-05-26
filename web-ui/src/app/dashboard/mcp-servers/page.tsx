@@ -34,7 +34,7 @@ export default function MCPServersPage() {
   });
 
   // WebSocket for real-time updates
-  useWebSocket({
+  useWebSocket('/generation/status', {
     onMessage: (message) => {
       if (message.type === 'generation_status' || message.type === 'deployment_status') {
         refetch();
@@ -88,12 +88,12 @@ export default function MCPServersPage() {
   };
 
   const filteredServers = servers.filter(server => {
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       server.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       server.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesFilter = filterStatus === 'all' || server.status === filterStatus;
-    
+
     return matchesSearch && matchesFilter;
   });
 
@@ -182,7 +182,7 @@ export default function MCPServersPage() {
             {searchTerm || filterStatus !== 'all' ? 'No matching servers' : 'No MCP servers'}
           </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {searchTerm || filterStatus !== 'all' 
+            {searchTerm || filterStatus !== 'all'
               ? 'Try adjusting your search or filter criteria.'
               : 'Get started by generating your first MCP server.'
             }

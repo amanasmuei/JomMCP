@@ -11,8 +11,12 @@ export const metadata: Metadata = {
   description: 'Platform for generating and deploying MCP servers from APIs',
   keywords: ['MCP', 'API', 'automation', 'deployment', 'microservices'],
   authors: [{ name: 'MCP Hub Team' }],
-  viewport: 'width=device-width, initial-scale=1',
   robots: 'index, follow',
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     title: 'MCP Hub Platform',
     description: 'Platform for generating and deploying MCP servers from APIs',
@@ -24,6 +28,11 @@ export const metadata: Metadata = {
     title: 'MCP Hub Platform',
     description: 'Platform for generating and deploying MCP servers from APIs',
   },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({

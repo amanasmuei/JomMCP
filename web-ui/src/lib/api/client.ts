@@ -1,34 +1,37 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
 import { logger } from '../logger';
 import { handleApiError, getUserFriendlyMessage } from '../error-handling';
 
+// Extend the Axios config interface to include metadata
+declare module 'axios' {
+  interface InternalAxiosRequestConfig {
+    metadata?: {
+      startTime: number;
+    };
+  }
+}
+
+export interface ApiError {
+  message: string;
+  status: number;
+  code?: string;
+  details?: any;
+}
+
 class ApiClient {
-  private registrationClient: AxiosInstance;
-  private generatorClient: AxiosInstance;
-  private deploymentClient: AxiosInstance;
+  private client: AxiosInstance;
+  private isRefreshing = false;
+  private failedQueue: Array<{
+    resolve: (value: any) => void;
+    reject: (reason: any) => void;
+  }> = [];
 
   constructor() {
-    // Create separate clients for each service
-    this.registrationClient = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_REGISTRATION_API_URL || 'http://localhost:8081',
-      timeout: 30000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    this.generatorClient = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_GENERATOR_API_URL || 'http://localhost:8082',
-      timeout: 30000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    this.deploymentClient = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_DEPLOYMENT_API_URL || 'http://localhost:8083',
+    // Use API Gateway as single entry point
+    this.client = axios.create({
+      baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
@@ -39,178 +42,222 @@ class ApiClient {
   }
 
   private setupInterceptors() {
-    const clients = [this.registrationClient, this.generatorClient, this.deploymentClient];
+    // Request interceptor to add auth token and logging
+    this.client.interceptors.request.use(
+      (config) => {
+        const token = Cookies.get('access_token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
 
-    clients.forEach((client) => {
-      // Request interceptor to add auth token and logging
-      client.interceptors.request.use(
-        (config) => {
-          const token = Cookies.get('access_token');
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        // Log API request
+        const startTime = Date.now();
+        config.metadata = { startTime };
+
+        logger.logApiRequest(
+          config.method?.toUpperCase() || 'UNKNOWN',
+          `${config.baseURL}${config.url}`,
+          undefined,
+          undefined,
+          {
+            service: 'api-gateway',
+            requestData: config.data ? 'present' : 'none'
+          }
+        );
+
+        return config;
+      },
+      (error) => {
+        logger.error('API request setup failed', { error: error.message }, 'api');
+        return Promise.reject(this.handleError(error));
+      }
+    );
+
+    // Response interceptor to handle errors and token refresh
+    this.client.interceptors.response.use(
+      (response) => {
+        // Log successful response
+        const duration = response.config.metadata?.startTime
+          ? Date.now() - response.config.metadata.startTime
+          : undefined;
+
+        logger.logApiRequest(
+          response.config.method?.toUpperCase() || 'UNKNOWN',
+          `${response.config.baseURL}${response.config.url}`,
+          response.status,
+          duration,
+          {
+            service: 'api-gateway',
+            responseSize: JSON.stringify(response.data).length
+          }
+        );
+
+        return response;
+      },
+      async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          if (this.isRefreshing) {
+            // If already refreshing, queue the request
+            return new Promise((resolve, reject) => {
+              this.failedQueue.push({ resolve, reject });
+            }).then((token) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              return this.client(originalRequest);
+            }).catch((err) => {
+              return Promise.reject(this.handleError(err));
+            });
           }
 
-          // Log API request
-          const startTime = Date.now();
-          config.metadata = { startTime };
+          originalRequest._retry = true;
+          this.isRefreshing = true;
 
-          logger.logApiRequest(
-            config.method?.toUpperCase() || 'UNKNOWN',
-            `${config.baseURL}${config.url}`,
-            undefined,
-            undefined,
-            {
-              service: this.getServiceFromBaseURL(config.baseURL || ''),
-              requestData: config.data ? 'present' : 'none'
+          try {
+            const refreshToken = Cookies.get('refresh_token');
+            if (refreshToken) {
+              const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/refresh`,
+                { refresh_token: refreshToken }
+              );
+
+              const { access_token } = response.data;
+              Cookies.set('access_token', access_token, { expires: 1 });
+
+              // Process failed queue
+              this.processQueue(null, access_token);
+
+              // Retry the original request with new token
+              originalRequest.headers.Authorization = `Bearer ${access_token}`;
+              return this.client(originalRequest);
             }
-          );
+          } catch (refreshError) {
+            // Refresh failed, clear tokens and redirect to login
+            this.processQueue(refreshError, null);
+            this.clearAuthTokens();
 
-          return config;
-        },
-        (error) => {
-          logger.error('API request setup failed', { error: error.message }, 'api');
-          return Promise.reject(error);
-        }
-      );
-
-      // Response interceptor to handle errors and token refresh
-      client.interceptors.response.use(
-        (response) => {
-          // Log successful response
-          const duration = response.config.metadata?.startTime
-            ? Date.now() - response.config.metadata.startTime
-            : undefined;
-
-          logger.logApiRequest(
-            response.config.method?.toUpperCase() || 'UNKNOWN',
-            `${response.config.baseURL}${response.config.url}`,
-            response.status,
-            duration,
-            {
-              service: this.getServiceFromBaseURL(response.config.baseURL || ''),
-              responseSize: JSON.stringify(response.data).length
-            }
-          );
-
-          return response;
-        },
-        async (error) => {
-          const originalRequest = error.config;
-
-          if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-
-            try {
-              const refreshToken = Cookies.get('refresh_token');
-              if (refreshToken) {
-                const response = await axios.post(
-                  `${this.registrationClient.defaults.baseURL}/api/v1/auth/refresh`,
-                  { refresh_token: refreshToken }
-                );
-
-                const { access_token, refresh_token: newRefreshToken } = response.data;
-
-                Cookies.set('access_token', access_token, { expires: 1 });
-                Cookies.set('refresh_token', newRefreshToken, { expires: 7 });
-
-                // Retry the original request
-                originalRequest.headers.Authorization = `Bearer ${access_token}`;
-                return client(originalRequest);
-              }
-            } catch (refreshError) {
-              // Refresh failed, redirect to login
-              Cookies.remove('access_token');
-              Cookies.remove('refresh_token');
+            // Only redirect if we're in the browser
+            if (typeof window !== 'undefined') {
               window.location.href = '/login';
-              return Promise.reject(refreshError);
             }
+
+            return Promise.reject(this.handleError(refreshError));
+          } finally {
+            this.isRefreshing = false;
           }
-
-          // Enhanced error handling with logging
-          const duration = error.config?.metadata?.startTime
-            ? Date.now() - error.config.metadata.startTime
-            : undefined;
-
-          // Log the error
-          logger.logApiRequest(
-            error.config?.method?.toUpperCase() || 'UNKNOWN',
-            `${error.config?.baseURL}${error.config?.url}`,
-            error.response?.status,
-            duration,
-            {
-              service: this.getServiceFromBaseURL(error.config?.baseURL || ''),
-              errorMessage: error.message,
-              errorData: error.response?.data
-            }
-          );
-
-          // Handle the error with our error handler
-          const apiError = handleApiError(error, {
-            service: this.getServiceFromBaseURL(error.config?.baseURL || ''),
-            url: error.config?.url,
-            method: error.config?.method
-          });
-
-          // Show user-friendly message
-          const userMessage = getUserFriendlyMessage(apiError);
-          if (error.response?.status !== 401) { // Don't show toast for auth errors (handled by redirect)
-            toast.error(userMessage);
-          }
-
-          return Promise.reject(error);
         }
-      );
+
+        // Enhanced error handling with logging
+        const duration = error.config?.metadata?.startTime
+          ? Date.now() - error.config.metadata.startTime
+          : undefined;
+
+        // Log the error
+        logger.logApiRequest(
+          error.config?.method?.toUpperCase() || 'UNKNOWN',
+          `${error.config?.baseURL}${error.config?.url}`,
+          error.response?.status,
+          duration,
+          {
+            service: 'api-gateway',
+            errorMessage: error.message,
+            errorData: error.response?.data
+          }
+        );
+
+        // Handle the error with our error handler
+        const apiError = handleApiError(error, {
+          service: 'api-gateway',
+          url: error.config?.url,
+          method: error.config?.method
+        });
+
+        // Show user-friendly message
+        const userMessage = getUserFriendlyMessage(apiError);
+        if (error.response?.status !== 401) { // Don't show toast for auth errors (handled by redirect)
+          toast.error(userMessage);
+        }
+
+        return Promise.reject(this.handleError(error));
+      }
+    );
+  }
+
+  private processQueue(error: any, token: string | null) {
+    this.failedQueue.forEach(({ resolve, reject }) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(token);
+      }
     });
+
+    this.failedQueue = [];
   }
 
-  private getClient(service: 'registration' | 'generator' | 'deployment'): AxiosInstance {
-    switch (service) {
-      case 'registration':
-        return this.registrationClient;
-      case 'generator':
-        return this.generatorClient;
-      case 'deployment':
-        return this.deploymentClient;
-      default:
-        return this.registrationClient;
+  private clearAuthTokens() {
+    Cookies.remove('access_token');
+    Cookies.remove('refresh_token');
+  }
+
+  private handleError(error: any): ApiError {
+    const apiError: ApiError = {
+      message: 'An unexpected error occurred',
+      status: 500,
+    };
+
+    if (error.response) {
+      // Server responded with error status
+      apiError.status = error.response.status;
+      apiError.message = error.response.data?.detail ||
+                        error.response.data?.message ||
+                        error.response.statusText ||
+                        'Server error';
+      apiError.details = error.response.data;
+    } else if (error.request) {
+      // Request was made but no response received
+      apiError.message = 'Network error - please check your connection';
+      apiError.status = 0;
+    } else {
+      // Something else happened
+      apiError.message = error.message || 'Request failed';
     }
+
+    return apiError;
   }
 
-  private getServiceFromBaseURL(baseURL: string): string {
-    if (baseURL.includes('8081')) return 'registration';
-    if (baseURL.includes('8082')) return 'generator';
-    if (baseURL.includes('8083')) return 'deployment';
-    return 'unknown';
-  }
-
-  async get<T = any>(url: string, service: 'registration' | 'generator' | 'deployment' = 'registration', config?: AxiosRequestConfig): Promise<T> {
-    const client = this.getClient(service);
-    const response: AxiosResponse<T> = await client.get(url, config);
+  async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    const response: AxiosResponse<T> = await this.client.get(url, config);
     return response.data;
   }
 
-  async post<T = any>(url: string, data?: any, service: 'registration' | 'generator' | 'deployment' = 'registration', config?: AxiosRequestConfig): Promise<T> {
-    const client = this.getClient(service);
-    const response: AxiosResponse<T> = await client.post(url, data, config);
+  async post<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    const response: AxiosResponse<T> = await this.client.post(url, data, config);
     return response.data;
   }
 
-  async put<T = any>(url: string, data?: any, service: 'registration' | 'generator' | 'deployment' = 'registration', config?: AxiosRequestConfig): Promise<T> {
-    const client = this.getClient(service);
-    const response: AxiosResponse<T> = await client.put(url, data, config);
+  async put<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    const response: AxiosResponse<T> = await this.client.put(url, data, config);
     return response.data;
   }
 
-  async patch<T = any>(url: string, data?: any, service: 'registration' | 'generator' | 'deployment' = 'registration', config?: AxiosRequestConfig): Promise<T> {
-    const client = this.getClient(service);
-    const response: AxiosResponse<T> = await client.patch(url, data, config);
+  async patch<T>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    const response: AxiosResponse<T> = await this.client.patch(url, data, config);
     return response.data;
   }
 
-  async delete<T = any>(url: string, service: 'registration' | 'generator' | 'deployment' = 'registration', config?: AxiosRequestConfig): Promise<T> {
-    const client = this.getClient(service);
-    const response: AxiosResponse<T> = await client.delete(url, config);
+  async delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    const response: AxiosResponse<T> = await this.client.delete(url, config);
     return response.data;
+  }
+
+  // Health check methods
+  async healthCheck(): Promise<{ status: string; services?: any }> {
+    return this.get('/health/all');
+  }
+
+  async getServiceHealth(service: string): Promise<{ status: string }> {
+    return this.get(`/health/${service}`);
   }
 }
 

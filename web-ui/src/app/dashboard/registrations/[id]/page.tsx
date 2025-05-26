@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { registrationsApi } from '@/lib/api/registrations';
 import { mcpApi } from '@/lib/api/mcp';
 import Link from 'next/link';
@@ -21,27 +21,24 @@ export default function RegistrationDetailPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const registrationId = params.id as string;
-  
+
   const [showGenerateModal, setShowGenerateModal] = useState(false);
   const [mcpServerName, setMcpServerName] = useState('');
 
-  const { data: registration, isLoading } = useQuery(
-    ['api-registration', registrationId],
-    () => registrationsApi.get(registrationId),
-    {
-      enabled: !!registrationId,
-    }
-  );
+  const { data: registration, isLoading } = useQuery({
+    queryKey: ['api-registration', registrationId],
+    queryFn: () => registrationsApi.get(registrationId),
+    enabled: !!registrationId,
+  });
 
-  const { data: mcpServers } = useQuery(
-    ['mcp-servers'],
-    () => mcpApi.list(),
-    {
-      select: (data) => data.items.filter(server => server.api_registration_id === registrationId),
-    }
-  );
+  const { data: mcpServers } = useQuery({
+    queryKey: ['mcp-servers'],
+    queryFn: () => mcpApi.list(),
+    select: (data) => data.items.filter(server => server.api_registration_id === registrationId),
+  });
 
-  const deleteMutation = useMutation(registrationsApi.delete, {
+  const deleteMutation = useMutation({
+    mutationFn: registrationsApi.delete,
     onSuccess: () => {
       toast.success('API registration deleted');
       router.push('/dashboard');
@@ -51,12 +48,13 @@ export default function RegistrationDetailPage() {
     },
   });
 
-  const generateMutation = useMutation(mcpApi.generate, {
+  const generateMutation = useMutation({
+    mutationFn: mcpApi.generate,
     onSuccess: () => {
       toast.success('MCP server generation started');
       setShowGenerateModal(false);
       setMcpServerName('');
-      queryClient.invalidateQueries(['mcp-servers']);
+      queryClient.invalidateQueries({ queryKey: ['mcp-servers'] });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.detail || 'Failed to start generation');
@@ -93,7 +91,7 @@ export default function RegistrationDetailPage() {
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    
+
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}>
         {config.text}
@@ -150,7 +148,7 @@ export default function RegistrationDetailPage() {
               </button>
               <button
                 onClick={handleDelete}
-                disabled={deleteMutation.isLoading}
+                disabled={deleteMutation.isPending}
                 className="btn-outline text-red-600 border-red-300 hover:bg-red-50"
               >
                 <TrashIcon className="h-4 w-4 mr-2" />
@@ -171,39 +169,39 @@ export default function RegistrationDetailPage() {
                 <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                   API Details
                 </h3>
-                
+
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Base URL</dt>
                     <dd className="mt-1 text-sm text-gray-900 break-all">{registration.base_url}</dd>
                   </div>
-                  
+
                   <div>
                     <dt className="text-sm font-medium text-gray-500">API Type</dt>
                     <dd className="mt-1 text-sm text-gray-900">{registration.api_type.toUpperCase()}</dd>
                   </div>
-                  
+
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Authentication</dt>
                     <dd className="mt-1 text-sm text-gray-900">
                       {registration.authentication_type.replace('_', ' ').toUpperCase()}
                     </dd>
                   </div>
-                  
+
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Created</dt>
                     <dd className="mt-1 text-sm text-gray-900">
                       {new Date(registration.created_at).toLocaleDateString()}
                     </dd>
                   </div>
-                  
+
                   {registration.description && (
                     <div className="sm:col-span-2">
                       <dt className="text-sm font-medium text-gray-500">Description</dt>
                       <dd className="mt-1 text-sm text-gray-900">{registration.description}</dd>
                     </div>
                   )}
-                  
+
                   {registration.health_check_url && (
                     <div className="sm:col-span-2">
                       <dt className="text-sm font-medium text-gray-500">Health Check URL</dt>
@@ -222,7 +220,7 @@ export default function RegistrationDetailPage() {
                 <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                   MCP Servers
                 </h3>
-                
+
                 {mcpServers && mcpServers.length > 0 ? (
                   <div className="space-y-3">
                     {mcpServers.map((server) => (
@@ -239,14 +237,14 @@ export default function RegistrationDetailPage() {
                           </div>
                           {getStatusBadge(server.status)}
                         </div>
-                        
+
                         {server.error_message && (
                           <div className="mt-2 flex items-start">
                             <ExclamationTriangleIcon className="h-4 w-4 text-red-500 mr-1 mt-0.5 flex-shrink-0" />
                             <p className="text-xs text-red-600">{server.error_message}</p>
                           </div>
                         )}
-                        
+
                         <div className="mt-2 flex justify-end">
                           <Link
                             href={`/dashboard/mcp-servers/${server.id}`}
@@ -290,7 +288,7 @@ export default function RegistrationDetailPage() {
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Generate MCP Server
               </h3>
-              
+
               <div className="mb-4">
                 <label htmlFor="serverName" className="block text-sm font-medium text-gray-700 mb-2">
                   Server Name
@@ -304,7 +302,7 @@ export default function RegistrationDetailPage() {
                   placeholder="Enter server name"
                 />
               </div>
-              
+
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setShowGenerateModal(false)}
@@ -314,10 +312,10 @@ export default function RegistrationDetailPage() {
                 </button>
                 <button
                   onClick={handleGenerate}
-                  disabled={generateMutation.isLoading}
+                  disabled={generateMutation.isPending}
                   className="btn-primary"
                 >
-                  {generateMutation.isLoading ? 'Generating...' : 'Generate'}
+                  {generateMutation.isPending ? 'Generating...' : 'Generate'}
                 </button>
               </div>
             </div>

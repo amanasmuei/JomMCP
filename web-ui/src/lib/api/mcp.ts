@@ -8,26 +8,30 @@ import {
 
 export const mcpApi = {
   async list(): Promise<MCPServerList> {
-    return apiClient.get('/api/v1/generation', 'generator');
+    return apiClient.get('/api/v1/generation');
   },
 
   async get(id: string): Promise<MCPServer> {
-    return apiClient.get(`/api/v1/generation/${id}`, 'generator');
+    return apiClient.get(`/api/v1/generation/${id}`);
+  },
+
+  async getById(id: string): Promise<MCPServer> {
+    return apiClient.get(`/api/v1/generation/${id}`);
   },
 
   async generate(data: MCPServerGenerationRequest): Promise<MCPServer> {
-    return apiClient.post('/api/v1/generation', data, 'generator');
+    return apiClient.post('/api/v1/generation', data);
   },
 
   async getStatus(id: string): Promise<GenerationStatusResponse> {
-    return apiClient.get(`/api/v1/generation/${id}/status`, 'generator');
+    return apiClient.get(`/api/v1/generation/${id}/status`);
   },
 
   async regenerate(id: string): Promise<MCPServer> {
-    return apiClient.post(`/api/v1/generation/${id}/regenerate`, {}, 'generator');
+    return apiClient.post(`/api/v1/generation/${id}/regenerate`, {});
   },
 
   async delete(id: string): Promise<void> {
-    return apiClient.delete(`/api/v1/generation/${id}`, 'generator');
+    return apiClient.delete(`/api/v1/generation/${id}`);
   },
 };

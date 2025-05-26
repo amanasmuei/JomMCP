@@ -23,7 +23,7 @@ export function useWebSocket(url: string, options: UseWebSocketOptions = {}) {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptsRef = useRef(0);
-  
+
   const {
     onMessage,
     onError,
@@ -38,12 +38,12 @@ export function useWebSocket(url: string, options: UseWebSocketOptions = {}) {
 
     try {
       setConnectionState('connecting');
-      
-      // Add auth token to WebSocket URL
-      const wsUrl = new URL(url);
-      wsUrl.searchParams.set('token', localStorage.getItem('access_token') || '');
-      
-      wsRef.current = new WebSocket(wsUrl.toString());
+
+      // Build WebSocket URL with API Gateway base
+      const wsBaseUrl = process.env.NEXT_PUBLIC_WS_BASE_URL || 'ws://localhost:8000';
+      const wsUrl = `${wsBaseUrl}/api/v1/ws${url}`;
+
+      wsRef.current = new WebSocket(wsUrl);
 
       wsRef.current.onopen = () => {
         setIsConnected(true);
@@ -65,7 +65,7 @@ export function useWebSocket(url: string, options: UseWebSocketOptions = {}) {
         setIsConnected(false);
         setConnectionState('disconnected');
         onDisconnect?.();
-        
+
         // Attempt to reconnect
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
           reconnectAttemptsRef.current++;
@@ -90,12 +90,12 @@ export function useWebSocket(url: string, options: UseWebSocketOptions = {}) {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
-    
+
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
     }
-    
+
     setIsConnected(false);
     setConnectionState('disconnected');
   };

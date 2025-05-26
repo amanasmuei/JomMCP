@@ -30,7 +30,8 @@ export default function NewMCPServerPage() {
     queryFn: () => registrationsApi.list({ page: 1, size: 100 }),
   });
 
-  const generateMutation = useMutation(mcpApi.generate, {
+  const generateMutation = useMutation({
+    mutationFn: mcpApi.generate,
     onSuccess: (data) => {
       toast.success('MCP server generation started!');
       setGenerationStatus({ server_id: data.id, status: 'pending' });
@@ -41,12 +42,12 @@ export default function NewMCPServerPage() {
   });
 
   // WebSocket for real-time generation updates
-  useWebSocket({
+  useWebSocket('/generation/status', {
     onMessage: (message) => {
       if (message.type === 'generation_status' && generationStatus?.server_id) {
         if (message.data.server_id === generationStatus.server_id) {
           setGenerationStatus(message.data);
-          
+
           if (message.data.status === 'ready') {
             toast.success('MCP server generated successfully!');
             setTimeout(() => {
@@ -101,9 +102,9 @@ export default function NewMCPServerPage() {
                       {generationStatus.status}
                     </span>
                   </div>
-                  
+
                   <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                    <div 
+                    <div
                       className={`h-2 rounded-full transition-all duration-500 ${
                         generationStatus.status === 'pending' ? 'bg-yellow-500 w-1/4' :
                         generationStatus.status === 'generating' ? 'bg-blue-500 w-1/2' :
@@ -206,7 +207,7 @@ export default function NewMCPServerPage() {
               <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
                 Server Configuration
               </h3>
-              
+
               <div className="grid grid-cols-1 gap-6">
                 <div>
                   <label htmlFor="api_registration_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -278,10 +279,10 @@ export default function NewMCPServerPage() {
             </Link>
             <button
               type="submit"
-              disabled={generateMutation.isLoading}
+              disabled={generateMutation.isPending}
               className="btn-primary"
             >
-              {generateMutation.isLoading ? 'Starting Generation...' : 'Generate Server'}
+              {generateMutation.isPending ? 'Starting Generation...' : 'Generate Server'}
             </button>
           </div>
         </form>

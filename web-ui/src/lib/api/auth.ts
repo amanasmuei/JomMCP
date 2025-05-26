@@ -3,30 +3,30 @@ import { User, LoginRequest, RegisterRequest, AuthResponse } from '@/types/auth'
 
 export const authApi = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    return apiClient.post('/api/v1/auth/login', credentials, 'registration');
+    return apiClient.post('/auth/login', credentials);
   },
 
   async register(userData: RegisterRequest): Promise<User> {
-    return apiClient.post('/api/v1/auth/register', userData, 'registration');
+    return apiClient.post('/auth/register', userData);
   },
 
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
-    return apiClient.post('/api/v1/auth/refresh', { refresh_token: refreshToken }, 'registration');
+    return apiClient.post('/auth/refresh', { refresh_token: refreshToken });
   },
 
   async getCurrentUser(): Promise<User> {
-    return apiClient.get('/api/v1/auth/me', 'registration');
+    return apiClient.get('/users/me');
   },
 
   async logout(): Promise<void> {
-    return apiClient.post('/api/v1/auth/logout', {}, 'registration');
+    return apiClient.post('/auth/logout', {});
   },
 
   async updateProfile(data: { full_name?: string; email?: string }): Promise<User> {
-    return apiClient.put('/api/v1/users/me', data, 'registration');
+    return apiClient.put('/users/me', data);
   },
 
   async changePassword(data: { current_password: string; new_password: string }): Promise<void> {
-    return apiClient.post('/api/v1/users/me/change-password', data, 'registration');
+    return apiClient.post('/users/me/change-password', data);
   },
 };

@@ -2,9 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/providers/auth-provider';
 import { CpuChipIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -19,7 +22,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -86,7 +89,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -102,7 +105,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
               <label htmlFor="full_name" className="block text-sm font-medium text-gray-700">
                 Full name (optional)
@@ -117,7 +120,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -133,7 +136,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
               />
             </div>
-            
+
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                 Confirm password

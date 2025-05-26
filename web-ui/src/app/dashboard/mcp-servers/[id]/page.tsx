@@ -31,7 +31,7 @@ export default function MCPServerDetailsPage() {
   });
 
   // WebSocket for real-time updates
-  useWebSocket({
+  useWebSocket('/generation/status', {
     onMessage: (message) => {
       if (message.type === 'generation_status' && message.data.server_id === serverId) {
         refetch();

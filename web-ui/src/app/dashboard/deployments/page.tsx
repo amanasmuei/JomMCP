@@ -33,7 +33,7 @@ export default function DeploymentsPage() {
   });
 
   // WebSocket for real-time updates
-  useWebSocket({
+  useWebSocket('/deployment/status', {
     onMessage: (message) => {
       if (message.type === 'deployment_status') {
         refetch();
@@ -86,12 +86,12 @@ export default function DeploymentsPage() {
   };
 
   const filteredDeployments = deployments.filter(deployment => {
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       deployment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       deployment.namespace?.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesFilter = filterStatus === 'all' || deployment.status === filterStatus;
-    
+
     return matchesSearch && matchesFilter;
   });
 
@@ -180,7 +180,7 @@ export default function DeploymentsPage() {
             {searchTerm || filterStatus !== 'all' ? 'No matching deployments' : 'No deployments'}
           </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {searchTerm || filterStatus !== 'all' 
+            {searchTerm || filterStatus !== 'all'
               ? 'Try adjusting your search or filter criteria.'
               : 'Get started by deploying your first MCP server.'
             }
@@ -274,9 +274,9 @@ export default function DeploymentsPage() {
                   {deployment.external_url && (
                     <div>
                       <span className="font-medium">URL:</span>{' '}
-                      <a 
-                        href={deployment.external_url} 
-                        target="_blank" 
+                      <a
+                        href={deployment.external_url}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
                       >

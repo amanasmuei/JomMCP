@@ -36,7 +36,8 @@ export default function NewDeploymentPage() {
     queryFn: () => mcpApi.list(),
   });
 
-  const deployMutation = useMutation(deploymentsApi.create, {
+  const deployMutation = useMutation({
+    mutationFn: deploymentsApi.create,
     onSuccess: (data) => {
       toast.success('Deployment started!');
       setDeploymentStatus({ deployment_id: data.id, status: 'pending' });
@@ -47,12 +48,12 @@ export default function NewDeploymentPage() {
   });
 
   // WebSocket for real-time deployment updates
-  useWebSocket({
+  useWebSocket('/deployment/status', {
     onMessage: (message) => {
       if (message.type === 'deployment_status' && deploymentStatus?.deployment_id) {
         if (message.data.deployment_id === deploymentStatus.deployment_id) {
           setDeploymentStatus(message.data);
-          
+
           if (message.data.status === 'running') {
             toast.success('Deployment completed successfully!');
             setTimeout(() => {
@@ -68,7 +69,7 @@ export default function NewDeploymentPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Convert env vars array to object
     const environmentVariables = envVars.reduce((acc, { key, value }) => {
       if (key && value) {
@@ -98,7 +99,7 @@ export default function NewDeploymentPage() {
   };
 
   const updateEnvVar = (index: number, field: 'key' | 'value', value: string) => {
-    setEnvVars(prev => prev.map((env, i) => 
+    setEnvVars(prev => prev.map((env, i) =>
       i === index ? { ...env, [field]: value } : env
     ));
   };
@@ -136,9 +137,9 @@ export default function NewDeploymentPage() {
                       {deploymentStatus.status}
                     </span>
                   </div>
-                  
+
                   <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-                    <div 
+                    <div
                       className={`h-2 rounded-full transition-all duration-500 ${
                         deploymentStatus.status === 'pending' ? 'bg-yellow-500 w-1/4' :
                         deploymentStatus.status === 'deploying' ? 'bg-blue-500 w-1/2' :
@@ -231,7 +232,7 @@ export default function NewDeploymentPage() {
               <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
                 Basic Configuration
               </h3>
-              
+
               <div className="grid grid-cols-1 gap-6">
                 <div>
                   <label htmlFor="mcp_server_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -317,7 +318,7 @@ export default function NewDeploymentPage() {
               <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
                 Resource Configuration
               </h3>
-              
+
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div>
                   <label htmlFor="cpu_limit" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -398,7 +399,7 @@ export default function NewDeploymentPage() {
                   Add Variable
                 </button>
               </div>
-              
+
               <div className="space-y-3">
                 {envVars.map((env, index) => (
                   <div key={index} className="flex gap-3">
@@ -444,10 +445,10 @@ export default function NewDeploymentPage() {
             </Link>
             <button
               type="submit"
-              disabled={deployMutation.isLoading}
+              disabled={deployMutation.isPending}
               className="btn-primary"
             >
-              {deployMutation.isLoading ? 'Starting Deployment...' : 'Deploy Server'}
+              {deployMutation.isPending ? 'Starting Deployment...' : 'Deploy Server'}
             </button>
           </div>
         </form>

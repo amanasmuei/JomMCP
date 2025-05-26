@@ -8,6 +8,9 @@ import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     username: '',

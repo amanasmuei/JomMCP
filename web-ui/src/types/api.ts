@@ -3,7 +3,7 @@ export interface APIRegistration {
   name: string;
   description?: string;
   base_url: string;
-  api_type: 'rest' | 'graphql' | 'soap' | 'grpc' | 'custom';
+  api_type: 'rest' | 'graphql' | 'soap' | 'grpc' | 'websocket' | 'custom';
   authentication_type: 'none' | 'api_key' | 'bearer_token' | 'basic_auth' | 'oauth2_client_credentials' | 'oauth2_authorization_code' | 'jwt' | 'custom';
   specification?: Record<string, any>;
   configuration?: Record<string, any>;
@@ -18,7 +18,7 @@ export interface APIRegistrationCreate {
   name: string;
   description?: string;
   base_url: string;
-  api_type: 'rest' | 'graphql' | 'soap' | 'grpc' | 'custom';
+  api_type: 'rest' | 'graphql' | 'soap' | 'grpc' | 'websocket' | 'custom';
   authentication_type: 'none' | 'api_key' | 'bearer_token' | 'basic_auth' | 'oauth2_client_credentials' | 'oauth2_authorization_code' | 'jwt' | 'custom';
   credentials?: Record<string, string>;
   specification?: Record<string, any>;
@@ -49,7 +49,7 @@ export interface APIRegistrationList {
 
 export interface APIValidationRequest {
   base_url: string;
-  authentication_type: 'none' | 'api_key' | 'bearer_token' | 'basic_auth' | 'oauth2' | 'custom';
+  authentication_type: 'none' | 'api_key' | 'bearer_token' | 'basic_auth' | 'oauth2_client_credentials' | 'oauth2_authorization_code' | 'jwt' | 'custom';
   credentials?: Record<string, string>;
   timeout_seconds?: number;
 }
@@ -59,6 +59,6 @@ export interface APIValidationResponse {
   status_code?: number;
   response_time_ms?: number;
   error_message?: string;
-  detected_api_type?: 'rest' | 'graphql' | 'soap' | 'grpc' | 'websocket';
+  detected_api_type?: 'rest' | 'graphql' | 'soap' | 'grpc' | 'websocket' | 'custom';
   specification?: Record<string, any>;
 }

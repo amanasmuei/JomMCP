@@ -113,6 +113,30 @@ services:
       - mcp-hub-network
     restart: unless-stopped
 
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: mcp-hub-gateway
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mcphub:mcphub_dev_password@postgres:5432/mcphub
+      REDIS_URL: redis://redis:6379/0
+      ENVIRONMENT: docker
+      DEBUG: "false"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - registration-service
+      - generator-service
+      - deployment-service
+      - docs-service
+    networks:
+      - mcp-hub-network
+    restart: unless-stopped
+
   # Web UI (Development)
   web-ui:
     build:
