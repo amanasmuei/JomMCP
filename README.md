@@ -40,7 +40,6 @@
 
 ```bash
 # 🚀 One-command deployment (Coming Soon)
-# curl -fsSL https://get.jommcp.io | bash
 
 # For now, jom use Docker!
 docker-compose up -d
@@ -100,7 +99,6 @@ Get started in under 2 minutes with our automated installer:
 
 ```bash
 # 🚀 Install and start JomMCP (Coming Soon)
-# curl -fsSL https://get.jommcp.io | bash
 
 # For now, jom use Docker Compose! (see below)
 docker-compose up -d
@@ -684,34 +682,6 @@ Join our growing community of developers building the future of AI-API integrati
 | 📺 **YouTube** | Tutorials, demos | Coming Soon |
 | 📖 **Blog** | Technical articles | Coming Soon |
 
-### 🎯 Community Programs
-
-<details>
-<summary>🌟 <strong>Ambassador Program</strong></summary>
-
-Become a JomMCP Ambassador and help grow the community:
-
-- **🎤 Speaking Opportunities** - Present at conferences and meetups
-- **📝 Content Creation** - Write tutorials and blog posts
-- **🎁 Exclusive Swag** - Limited edition merchandise
-- **🤝 Direct Access** - Connect with core team members
-
-[Apply to become an Ambassador](mailto:community@jommcp.io?subject=Ambassador%20Application) (Coming Soon)
-
-</details>
-
-<details>
-<summary>🏆 <strong>Contributor Recognition</strong></summary>
-
-We recognize outstanding contributors:
-
-- **🥇 Top Contributor** - Monthly recognition
-- **🎯 Feature Champion** - Lead major feature development
-- **🐛 Bug Hunter** - Find and fix critical issues
-- **📚 Documentation Hero** - Improve project documentation
-
-</details>
-
 ---
 
 ## 📊 Performance
@@ -774,7 +744,7 @@ Our platform delivers enterprise-grade performance:
 
 Found a security vulnerability? Please report it responsibly:
 
-- **📧 Email**: security@jommcp.io (Coming Soon)
+- **📧 Email**: amanasmuei@gmail.com
 - **🔒 PGP Key**: Coming Soon
 - **⏱️ Response Time**: Within 24 hours
 - **🏆 Bug Bounty**: Coming Soon
