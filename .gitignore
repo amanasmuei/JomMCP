@@ -395,4 +395,4 @@ web-ui/out/
 migrations/backup/
 
 web-ui/node_modules/
-web-ui/node_modules/*
+web-ui/node_modules/

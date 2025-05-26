@@ -14,25 +14,25 @@ import httpx
 from core.config import settings
 from core.database import create_tables
 
-from .middleware import AuthMiddleware, RateLimitMiddleware
-from .routes import api_router
+from middleware import AuthMiddleware, RateLimitMiddleware
+from routes import api_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
     Application lifespan manager.
-    
+
     Handles startup and shutdown events.
     """
     # Startup
     await create_tables()
-    
+
     # Initialize HTTP client for service communication
     app.state.http_client = httpx.AsyncClient(timeout=30.0)
-    
+
     yield
-    
+
     # Shutdown
     await app.state.http_client.aclose()
 
@@ -40,7 +40,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 def create_app() -> FastAPI:
     """
     Create and configure the FastAPI application.
-    
+
     Returns:
         FastAPI: Configured application instance
     """
@@ -53,7 +53,7 @@ def create_app() -> FastAPI:
         redoc_url=f"{settings.api_v1_prefix}/redoc",
         lifespan=lifespan,
     )
-    
+
     # Add CORS middleware
     app.add_middleware(
         CORSMiddleware,
@@ -62,14 +62,14 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    
+
     # Add custom middleware
     app.add_middleware(AuthMiddleware)
     app.add_middleware(RateLimitMiddleware)
-    
+
     # Include API routes
     app.include_router(api_router, prefix=settings.api_v1_prefix)
-    
+
     # Global exception handler
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
@@ -77,20 +77,18 @@ def create_app() -> FastAPI:
             status_code=500,
             content={
                 "error": "Internal server error",
-                "message": str(exc) if settings.debug else "An unexpected error occurred"
-            }
+                "message": (
+                    str(exc) if settings.debug else "An unexpected error occurred"
+                ),
+            },
         )
-    
+
     # Health check endpoint
     @app.get("/health")
     async def health_check():
         """Global health check endpoint."""
-        return {
-            "status": "healthy",
-            "service": "api-gateway",
-            "version": "1.0.0"
-        }
-    
+        return {"status": "healthy", "service": "api-gateway", "version": "1.0.0"}
+
     return app
 
 
@@ -100,4 +98,5 @@ app = create_app()
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
