@@ -91,7 +91,8 @@ def test_api_registration(access_token):
         "name": "Test API",
         "description": "A test API for E2E testing",
         "base_url": "https://jsonplaceholder.typicode.com",
-        "auth_type": "none",
+        "api_type": "rest",
+        "authentication_type": "none",
         "endpoints": [
             {"path": "/posts", "method": "GET", "description": "Get all posts"},
             {
@@ -121,14 +122,17 @@ def test_mcp_generation(access_token, registration_id):
     headers = {"Authorization": f"Bearer {access_token}"}
 
     generation_data = {
-        "registration_id": registration_id,
-        "server_name": "test-mcp-server",
+        "api_registration_id": registration_id,
+        "name": "test-mcp-server",
         "description": "Generated MCP server for testing",
-        "template_type": "fastapi",
+        "mcp_config": {
+            "version": "1.0.0",
+            "capabilities": {"tools": True, "resources": True, "prompts": False},
+        },
     }
 
     response = requests.post(
-        f"{API_BASE_URL}/api/v1/generate", json=generation_data, headers=headers
+        f"{API_BASE_URL}/api/v1/generation", json=generation_data, headers=headers
     )
     if response.status_code == 201:
         generation = response.json()
