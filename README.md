@@ -1,18 +1,19 @@
 <div align="center">
 
-# 🚀 MCP Hub Platform
+# 🚀 JomMCP
 
-**Transform any API into an AI-ready MCP server in minutes**
+**Jom transform your API! Let's make it AI-ready in minutes**
+***Mari ubah API anda menjadi MCP server yang siap untuk AI***
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/mcphub/mcp-hub-platform/ci.yml?branch=main&style=for-the-badge)](https://github.com/mcphub/mcp-hub-platform/actions)
-[![Version](https://img.shields.io/github/v/release/mcphub/mcp-hub-platform?style=for-the-badge&color=blue)](https://github.com/mcphub/mcp-hub-platform/releases)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/jommcp/jommcp/ci.yml?branch=main&style=for-the-badge)](https://github.com/jommcp/jommcp/actions)
+[![Version](https://img.shields.io/github/v/release/jommcp/jommcp?style=for-the-badge&color=blue)](https://github.com/jommcp/jommcp/releases)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Production Ready](https://img.shields.io/badge/Production-Ready-brightgreen?style=for-the-badge)](docs/production-readiness.md)
 
-[![Contributors](https://img.shields.io/github/contributors/mcphub/mcp-hub-platform?style=for-the-badge)](https://github.com/mcphub/mcp-hub-platform/graphs/contributors)
-[![Stars](https://img.shields.io/github/stars/mcphub/mcp-hub-platform?style=for-the-badge)](https://github.com/mcphub/mcp-hub-platform/stargazers)
-[![Forks](https://img.shields.io/github/forks/mcphub/mcp-hub-platform?style=for-the-badge)](https://github.com/mcphub/mcp-hub-platform/network/members)
-[![Issues](https://img.shields.io/github/issues/mcphub/mcp-hub-platform?style=for-the-badge)](https://github.com/mcphub/mcp-hub-platform/issues)
+[![Contributors](https://img.shields.io/github/contributors/jommcp/jommcp?style=for-the-badge)](https://github.com/jommcp/jommcp/graphs/contributors)
+[![Stars](https://img.shields.io/github/stars/jommcp/jommcp?style=for-the-badge)](https://github.com/jommcp/jommcp/stargazers)
+[![Forks](https://img.shields.io/github/forks/jommcp/jommcp?style=for-the-badge)](https://github.com/jommcp/jommcp/network/members)
+[![Issues](https://img.shields.io/github/issues/jommcp/jommcp?style=for-the-badge)](https://github.com/jommcp/jommcp/issues)
 
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🤝 Contributing](#-contributing) • [💬 Community](#-community) • [🎯 Roadmap](#-roadmap)
 
@@ -20,24 +21,29 @@
 
 ---
 
-## 🌟 What is MCP Hub Platform?
+## 🌟 What is JomMCP?
 
-The **MCP Hub Platform** is a comprehensive, production-ready solution that automatically transforms your existing APIs into **Model Context Protocol (MCP) servers** that seamlessly integrate with AI assistants like Claude, ChatGPT, and other AI tools.
+**JomMCP** is a comprehensive, production-ready platform that automatically transforms your existing APIs into **Model Context Protocol (MCP) servers** that seamlessly integrate with AI assistants like Claude, ChatGPT, and other AI tools.
 
-### ✨ **Why Choose MCP Hub?**
+*Jom* means "let's go" in Malay - and that's exactly what we do: **let's go transform your APIs!**
+
+### ✨ **Why Choose JomMCP?**
 
 🎯 **Zero Code Required** - Transform APIs without writing a single line of MCP server code
-⚡ **Lightning Fast** - Go from API to deployed MCP server in under 5 minutes
+⚡ **Lightning Fast** - Jom! Go from API to deployed MCP server in under 5 minutes
 🔒 **Enterprise Security** - Bank-grade encryption, JWT auth, and role-based access control
 📈 **Production Scale** - Kubernetes-ready with auto-scaling and monitoring
 🌐 **Universal Compatibility** - Works with REST, GraphQL, SOAP, and custom APIs
 🔄 **Real-time Updates** - Live status tracking with WebSocket connections
 
-### 🎬 **See It In Action**
+### 🎬 **Jom Get Started! (Mari Bermula!)**
 
 ```bash
-# 🚀 One-command deployment
-curl -fsSL https://get.mcphub.io | bash
+# 🚀 One-command deployment (Coming Soon)
+# curl -fsSL https://get.jommcp.io | bash
+
+# For now, jom use Docker!
+docker-compose up -d
 
 # ✅ Your API is now AI-ready!
 ```
@@ -64,7 +70,7 @@ curl -fsSL https://get.mcphub.io | bash
 <details>
 <summary>🗂️ <strong>Click to expand navigation</strong></summary>
 
-- [🌟 What is MCP Hub Platform?](#-what-is-mcp-hub-platform)
+- [🌟 What is JomMCP?](#-what-is-jommcp)
 - [🚀 Quick Start](#-quick-start)
   - [⚡ One-Command Setup](#-one-command-setup)
   - [🐳 Docker Deployment](#-docker-deployment)
@@ -93,8 +99,11 @@ curl -fsSL https://get.mcphub.io | bash
 Get started in under 2 minutes with our automated installer:
 
 ```bash
-# 🚀 Install and start MCP Hub Platform
-curl -fsSL https://get.mcphub.io | bash
+# 🚀 Install and start JomMCP (Coming Soon)
+# curl -fsSL https://get.jommcp.io | bash
+
+# For now, jom use Docker Compose! (see below)
+docker-compose up -d
 
 # 🌐 Open the platform
 open http://localhost:3000
@@ -117,8 +126,8 @@ open http://localhost:3000
 
 ```bash
 # Clone the repository
-git clone https://github.com/mcphub/mcp-hub-platform.git
-cd mcp-hub-platform
+git clone https://github.com/jommcp/jommcp.git
+cd jommcp
 
 # Start all services
 docker-compose up -d
@@ -159,8 +168,8 @@ curl -s http://localhost:8000/api/v1/health/all | jq
 
 ```bash
 # 1️⃣ Clone and setup
-git clone https://github.com/mcphub/mcp-hub-platform.git
-cd mcp-hub-platform
+git clone https://github.com/jommcp/jommcp.git
+cd jommcp
 
 # 2️⃣ Start infrastructure
 docker-compose up -d postgres redis
@@ -342,10 +351,10 @@ graph TB
 <details>
 <summary>📋 <strong>Quick Links</strong></summary>
 
-- **Live Demo**: [demo.mcphub.io](https://demo.mcphub.io)
-- **API Status**: [status.mcphub.io](https://status.mcphub.io)
-- **Documentation**: [docs.mcphub.io](https://docs.mcphub.io)
-- **Community**: [community.mcphub.io](https://community.mcphub.io)
+- **Live Demo**: Coming Soon
+- **API Status**: Coming Soon
+- **Documentation**: Coming Soon
+- **Community**: Coming Soon
 
 </details>
 
@@ -609,10 +618,10 @@ psql postgresql://mcphub:mcphub_dev_password@localhost:5432/mcphub
 
 ### 📞 Getting Help
 
-- 📖 **Documentation**: [docs.mcphub.io](https://docs.mcphub.io)
-- 💬 **Community Forum**: [community.mcphub.io](https://community.mcphub.io)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/mcphub/mcp-hub-platform/issues)
-- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/mcphub/mcp-hub-platform/discussions)
+- 📖 **Documentation**: Coming Soon
+- 💬 **Community Forum**: Coming Soon
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/jommcp/jommcp/issues)
+- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/jommcp/jommcp/discussions)
 
 ---
 
@@ -655,7 +664,7 @@ We welcome contributions from the community! Here's how to get started:
 
 <div align="center">
 
-[![Contributors](https://contrib.rocks/image?repo=mcphub/mcp-hub-platform)](https://github.com/mcphub/mcp-hub-platform/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=jommcp/jommcp)](https://github.com/jommcp/jommcp/graphs/contributors)
 
 </div>
 
@@ -667,27 +676,27 @@ Join our growing community of developers building the future of AI-API integrati
 
 ### 🌐 Community Channels
 
-| Platform | Purpose | Link |
-|----------|---------|------|
-| 💬 **Discord** | Real-time chat, support | [Join Discord](https://discord.gg/mcphub) |
-| 🐦 **Twitter** | Updates, announcements | [@MCPHub](https://twitter.com/mcphub) |
-| 📧 **Newsletter** | Monthly updates | [Subscribe](https://mcphub.io/newsletter) |
-| 📺 **YouTube** | Tutorials, demos | [MCP Hub Channel](https://youtube.com/@mcphub) |
-| 📖 **Blog** | Technical articles | [blog.mcphub.io](https://blog.mcphub.io) |
+| Platform | Purpose | Status |
+|----------|---------|--------|
+| 💬 **Discord** | Real-time chat, support | Coming Soon |
+| 🐦 **Twitter** | Updates, announcements | Coming Soon |
+| 📧 **Newsletter** | Monthly updates | Coming Soon |
+| 📺 **YouTube** | Tutorials, demos | Coming Soon |
+| 📖 **Blog** | Technical articles | Coming Soon |
 
 ### 🎯 Community Programs
 
 <details>
 <summary>🌟 <strong>Ambassador Program</strong></summary>
 
-Become an MCP Hub Ambassador and help grow the community:
+Become a JomMCP Ambassador and help grow the community:
 
 - **🎤 Speaking Opportunities** - Present at conferences and meetups
 - **📝 Content Creation** - Write tutorials and blog posts
 - **🎁 Exclusive Swag** - Limited edition merchandise
 - **🤝 Direct Access** - Connect with core team members
 
-[Apply to become an Ambassador](https://mcphub.io/ambassador)
+[Apply to become an Ambassador](mailto:community@jommcp.io?subject=Ambassador%20Application) (Coming Soon)
 
 </details>
 
@@ -765,10 +774,10 @@ Our platform delivers enterprise-grade performance:
 
 Found a security vulnerability? Please report it responsibly:
 
-- **📧 Email**: security@mcphub.io
-- **🔒 PGP Key**: [Download](https://mcphub.io/pgp-key.asc)
+- **📧 Email**: security@jommcp.io (Coming Soon)
+- **🔒 PGP Key**: Coming Soon
 - **⏱️ Response Time**: Within 24 hours
-- **🏆 Bug Bounty**: Rewards for valid reports
+- **🏆 Bug Bounty**: Coming Soon
 
 ---
 
@@ -801,9 +810,9 @@ Special thanks to:
 
 **⭐ Star this repository if you find it helpful!**
 
-**🤝 [Contribute](CONTRIBUTING.md) • 💬 [Community](https://discord.gg/mcphub) • 📖 [Documentation](https://docs.mcphub.io) • 🐛 [Issues](https://github.com/mcphub/mcp-hub-platform/issues)**
+**🤝 [Contribute](CONTRIBUTING.md) • 💬 Community (Coming Soon) • 📖 Documentation (Coming Soon) • 🐛 [Issues](https://github.com/jommcp/jommcp/issues)**
 
-**Made with ❤️ by the MCP Hub Team**
+**Made with ❤️ by the JomMCP Team**
 
 </div>
 
@@ -859,7 +868,7 @@ Special thanks to:
 ## 🎉 Project Structure
 
 ```text
-mcp-hub-platform/
+jommcp/
 ├── 🚪 api-gateway/              # API Gateway service
 ├── 📝 registration-service/     # API registration & user management
 ├── 🤖 generator-service/        # MCP server code generation
