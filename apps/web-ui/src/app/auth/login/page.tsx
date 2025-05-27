@@ -151,7 +151,7 @@ function LoginForm() {
               </p>
               <div className="text-xs text-warning-700 dark:text-warning-300 space-y-1">
                 <p>Username: <code className="bg-warning-100 dark:bg-warning-900 px-1 rounded">demo</code></p>
-                <p>Password: <code className="bg-warning-100 dark:bg-warning-900 px-1 rounded">demo123</code></p>
+                <p>Password: <code className="bg-warning-100 dark:bg-warning-900 px-1 rounded">Demo123456</code></p>
               </div>
             </CardContent>
           </Card>

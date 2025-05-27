@@ -38,9 +38,7 @@ class RedisSettings(BaseSettings):
 class SecuritySettings(BaseSettings):
     """Security configuration settings."""
 
-    secret_key: str = Field(
-        default="your-secret-key-here-change-in-production", env="SECRET_KEY"
-    )
+    secret_key: str = Field(default="jommcp-dev-secret-key-2024", env="SECRET_KEY")
     encryption_key: str = Field(
         default="", env="ENCRYPTION_KEY"  # Will be generated if not provided
     )

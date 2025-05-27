@@ -34,6 +34,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
         "/openapi.json",
     }
 
+    # WebSocket paths that handle their own authentication
+    WEBSOCKET_PATHS = {
+        "/api/v1/ws/status",
+        "/api/v1/ws/generation",
+    }
+
     async def dispatch(self, request: Request, call_next):
         """
         Process authentication for incoming requests.
@@ -47,6 +53,12 @@ class AuthMiddleware(BaseHTTPMiddleware):
         """
         # Skip authentication for exempt paths
         if request.url.path in self.EXEMPT_PATHS:
+            return await call_next(request)
+
+        # Skip authentication for WebSocket paths (they handle their own auth)
+        if any(
+            request.url.path.startswith(ws_path) for ws_path in self.WEBSOCKET_PATHS
+        ):
             return await call_next(request)
 
         # Skip authentication for OPTIONS requests

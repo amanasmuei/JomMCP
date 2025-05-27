@@ -70,7 +70,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const authUser = await authManager.login(username, password);
       setUser(authUser);
-      router.push('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -81,7 +80,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const authUser = await authManager.register(username, email, password, fullName);
       setUser(authUser);
-      router.push('/dashboard');
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;

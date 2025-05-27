@@ -113,10 +113,10 @@ async def register_user(
     )
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=AuthResponse)
 async def login_user(
     user_credentials: UserLogin, db: AsyncSession = Depends(get_db)
-) -> TokenResponse:
+) -> AuthResponse:
     """
     Authenticate user and return access tokens.
 
@@ -164,11 +164,12 @@ async def login_user(
         expires_delta=refresh_token_expires,
     )
 
-    return TokenResponse(
+    return AuthResponse(
         access_token=access_token,
         refresh_token=refresh_token,
         token_type="bearer",
         expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user=UserResponse.model_validate(user),
     )
 
 
