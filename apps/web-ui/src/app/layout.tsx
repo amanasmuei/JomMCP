@@ -4,13 +4,21 @@ import './globals.css';
 import { Providers } from './providers';
 import { Toaster } from 'react-hot-toast';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
-  title: 'MCP Hub Platform',
-  description: 'Platform for generating and deploying MCP servers from APIs',
-  keywords: ['MCP', 'API', 'automation', 'deployment', 'microservices'],
-  authors: [{ name: 'MCP Hub Team' }],
+  title: {
+    default: 'JomMCP Platform',
+    template: '%s | JomMCP Platform',
+  },
+  description: 'Transform your APIs into AI-ready MCP servers. Generate and deploy Model Context Protocol servers from your existing APIs in minutes.',
+  keywords: ['MCP', 'API', 'automation', 'deployment', 'microservices', 'AI', 'Claude', 'OpenAI', 'Model Context Protocol'],
+  authors: [{ name: 'JomMCP Team' }],
+  creator: 'JomMCP Team',
   robots: 'index, follow',
   icons: {
     icon: '/icon.svg',
@@ -18,21 +26,28 @@ export const metadata: Metadata = {
     apple: '/icon.svg',
   },
   openGraph: {
-    title: 'MCP Hub Platform',
-    description: 'Platform for generating and deploying MCP servers from APIs',
+    title: 'JomMCP Platform',
+    description: 'Transform your APIs into AI-ready MCP servers',
     type: 'website',
     locale: 'en_US',
+    siteName: 'JomMCP Platform',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MCP Hub Platform',
-    description: 'Platform for generating and deploying MCP servers from APIs',
+    title: 'JomMCP Platform',
+    description: 'Transform your APIs into AI-ready MCP servers',
+    creator: '@jommcp',
   },
+  metadataBase: new URL('https://jommcp.dev'),
 };
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f172a' },
+  ],
 };
 
 export default function RootLayout({
@@ -41,32 +56,40 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
-      <body className={`${inter.className} h-full bg-gray-50 antialiased`}>
+    <html lang="en" className={`h-full ${inter.variable}`} suppressHydrationWarning>
+      <body className={`${inter.className} h-full bg-background text-foreground antialiased`}>
         <Providers>
-          <div className="min-h-full">
+          <div className="relative min-h-full">
             {children}
           </div>
           <Toaster
             position="top-right"
             toastOptions={{
               duration: 4000,
+              className: 'toast',
               style: {
-                background: '#363636',
-                color: '#fff',
+                background: 'hsl(var(--card))',
+                color: 'hsl(var(--card-foreground))',
+                border: '1px solid hsl(var(--border))',
               },
               success: {
                 duration: 3000,
                 iconTheme: {
-                  primary: '#22c55e',
-                  secondary: '#fff',
+                  primary: 'hsl(var(--success-500))',
+                  secondary: 'hsl(var(--card))',
                 },
               },
               error: {
                 duration: 5000,
                 iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
+                  primary: 'hsl(var(--destructive))',
+                  secondary: 'hsl(var(--card))',
+                },
+              },
+              loading: {
+                iconTheme: {
+                  primary: 'hsl(var(--primary))',
+                  secondary: 'hsl(var(--card))',
                 },
               },
             }}
