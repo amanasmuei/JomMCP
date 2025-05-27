@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import './globals.css';
+import '@/styles/globals.css';
+import { Providers } from '@/components/providers';
 
 export const metadata: Metadata = {
   title: 'JomMCP Platform - API to MCP Server Automation',
@@ -12,11 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <div className="min-h-screen bg-white">
+        <Providers>
           {children}
-        </div>
+        </Providers>
       </body>
     </html>
   );

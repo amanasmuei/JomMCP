@@ -19,7 +19,8 @@ import {
   LogOut,
   Bell,
   Moon,
-  Sun
+  Sun,
+  Activity
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -34,6 +35,7 @@ const navigation = [
   { name: 'APIs', href: '/dashboard/apis', icon: Globe },
   { name: 'MCP Servers', href: '/dashboard/servers', icon: Server },
   { name: 'Deployments', href: '/dashboard/deployments', icon: Rocket },
+  { name: 'Monitoring', href: '/dashboard/monitoring', icon: Activity },
   { name: 'Documentation', href: '/dashboard/docs', icon: FileText },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];

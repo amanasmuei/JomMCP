@@ -149,4 +149,56 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Grid pattern background */
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Custom animations */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Gradient text animation */
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+
+  /* Enhanced hover effects */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
 }
