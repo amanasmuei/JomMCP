@@ -28,6 +28,7 @@ from ..schemas.auth import (
     UserLogin,
     UserResponse,
     TokenResponse,
+    AuthResponse,
     RefreshTokenRequest,
 )
 from ..dependencies import get_current_user
@@ -37,11 +38,11 @@ security = HTTPBearer()
 
 
 @router.post(
-    "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+    "/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED
 )
 async def register_user(
     user_data: UserCreate, db: AsyncSession = Depends(get_db)
-) -> UserResponse:
+) -> AuthResponse:
     """
     Register a new user.
 
@@ -86,7 +87,30 @@ async def register_user(
     await db.commit()
     await db.refresh(db_user)
 
-    return UserResponse.from_orm(db_user)
+    # Create access and refresh tokens for the new user
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+
+    access_token = create_access_token(
+        data={
+            "sub": db_user.username,
+            "user_id": str(db_user.id),
+            "role": db_user.role,
+        },
+        expires_delta=access_token_expires,
+    )
+    refresh_token = create_refresh_token(
+        data={"sub": db_user.username, "user_id": str(db_user.id)},
+        expires_delta=refresh_token_expires,
+    )
+
+    return AuthResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+        expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        user=UserResponse.model_validate(db_user),
+    )
 
 
 @router.post("/login", response_model=TokenResponse)
