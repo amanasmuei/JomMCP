@@ -6,21 +6,24 @@ import { mcpApi } from '@/lib/api/mcp';
 import { MCPServer } from '@/types/mcp';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
 import {
-  PlusIcon,
-  MagnifyingGlassIcon,
-  FunnelIcon,
-  EllipsisVerticalIcon,
-  CpuChipIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  XCircleIcon,
-  ClockIcon,
-  PlayIcon,
-  StopIcon,
-} from '@heroicons/react/24/outline';
-import { Menu, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+  Plus,
+  Search,
+  Filter,
+  MoreVertical,
+  Server,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  Clock,
+  Play,
+  Square,
+  LayoutDashboard,
+} from 'lucide-react';
 
 export default function MCPServersPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,44 +50,46 @@ export default function MCPServersPage() {
   const getStatusIcon = (status: MCPServer['status']) => {
     switch (status) {
       case 'running':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'stopped':
-        return <StopIcon className="h-5 w-5 text-gray-500" />;
+        return <Square className="h-4 w-4 text-gray-500" />;
       case 'error':
       case 'failed':
-        return <XCircleIcon className="h-5 w-5 text-red-500" />;
+        return <XCircle className="h-4 w-4 text-red-500" />;
       case 'pending':
       case 'generating':
       case 'building':
       case 'deploying':
-        return <ClockIcon className="h-5 w-5 text-yellow-500 animate-spin" />;
+        return <Clock className="h-4 w-4 text-yellow-500 animate-spin" />;
       case 'ready':
-        return <PlayIcon className="h-5 w-5 text-blue-500" />;
+        return <Play className="h-4 w-4 text-blue-500" />;
       default:
-        return <ClockIcon className="h-5 w-5 text-gray-500" />;
+        return <Clock className="h-4 w-4 text-gray-500" />;
     }
   };
 
   const getStatusBadge = (status: MCPServer['status']) => {
-    const statusConfig = {
-      pending: { bg: 'bg-yellow-100 dark:bg-yellow-900', text: 'text-yellow-800 dark:text-yellow-200', label: 'Pending' },
-      generating: { bg: 'bg-blue-100 dark:bg-blue-900', text: 'text-blue-800 dark:text-blue-200', label: 'Generating' },
-      building: { bg: 'bg-purple-100 dark:bg-purple-900', text: 'text-purple-800 dark:text-purple-200', label: 'Building' },
-      ready: { bg: 'bg-green-100 dark:bg-green-900', text: 'text-green-800 dark:text-green-200', label: 'Ready' },
-      deploying: { bg: 'bg-indigo-100 dark:bg-indigo-900', text: 'text-indigo-800 dark:text-indigo-200', label: 'Deploying' },
-      running: { bg: 'bg-green-100 dark:bg-green-900', text: 'text-green-800 dark:text-green-200', label: 'Running' },
-      stopped: { bg: 'bg-gray-100 dark:bg-gray-900', text: 'text-gray-800 dark:text-gray-200', label: 'Stopped' },
-      error: { bg: 'bg-red-100 dark:bg-red-900', text: 'text-red-800 dark:text-red-200', label: 'Error' },
-      failed: { bg: 'bg-red-100 dark:bg-red-900', text: 'text-red-800 dark:text-red-200', label: 'Failed' },
-    };
-
-    const config = statusConfig[status] || statusConfig.pending;
-
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
-        {config.label}
-      </span>
-    );
+    switch (status) {
+      case 'running':
+        return <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">Running</Badge>;
+      case 'ready':
+        return <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">Ready</Badge>;
+      case 'pending':
+        return <Badge variant="secondary" className="bg-yellow-50 text-yellow-700 border-yellow-200">Pending</Badge>;
+      case 'generating':
+        return <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200">Generating</Badge>;
+      case 'building':
+        return <Badge variant="secondary" className="bg-purple-50 text-purple-700 border-purple-200">Building</Badge>;
+      case 'deploying':
+        return <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 border-indigo-200">Deploying</Badge>;
+      case 'stopped':
+        return <Badge variant="secondary">Stopped</Badge>;
+      case 'error':
+      case 'failed':
+        return <Badge variant="destructive">Failed</Badge>;
+      default:
+        return <Badge variant="secondary">Unknown</Badge>;
+    }
   };
 
   const filteredServers = servers.filter(server => {
@@ -97,180 +102,158 @@ export default function MCPServersPage() {
     return matchesSearch && matchesFilter;
   });
 
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'MCP Servers', icon: Server }
+  ];
+
   if (error) {
     return (
-      <div className="p-6">
-        <div className="text-center py-12">
-          <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-            Error loading MCP servers
-          </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Please try again later.
-          </p>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="mb-6">
+          <Breadcrumb items={breadcrumbItems} />
         </div>
+        <Card>
+          <CardContent className="text-center py-12">
+            <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
+              Error loading MCP servers
+            </h3>
+            <p className="text-muted-foreground">
+              Please try again later.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* Breadcrumb Navigation */}
+      <div className="mb-6">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MCP Servers</h1>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <h1 className="text-3xl font-bold text-foreground mb-2">MCP Servers</h1>
+            <p className="text-muted-foreground text-lg">
               Manage your generated MCP servers and their deployments
             </p>
           </div>
-          <Link
-            href="/dashboard/mcp-servers/new"
-            className="btn-primary"
-          >
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Generate Server
-          </Link>
+          <Button asChild>
+            <Link href="/dashboard/mcp-servers/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Generate Server
+            </Link>
+          </Button>
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search MCP servers..."
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search MCP servers..."
+                  className="pl-10 pr-4 py-2 w-full border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <select
+                className="border border-border rounded-md bg-background text-foreground px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="generating">Generating</option>
+                <option value="building">Building</option>
+                <option value="ready">Ready</option>
+                <option value="deploying">Deploying</option>
+                <option value="running">Running</option>
+                <option value="stopped">Stopped</option>
+                <option value="error">Error</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
-          <select
-            className="border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="generating">Generating</option>
-            <option value="building">Building</option>
-            <option value="ready">Ready</option>
-            <option value="deploying">Deploying</option>
-            <option value="running">Running</option>
-            <option value="stopped">Stopped</option>
-            <option value="error">Error</option>
-            <option value="failed">Failed</option>
-          </select>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Content */}
       {isLoading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading MCP servers...</p>
-        </div>
+        <Card>
+          <CardContent className="text-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto mb-4" />
+            <p className="text-muted-foreground">Loading MCP servers...</p>
+          </CardContent>
+        </Card>
       ) : filteredServers.length === 0 ? (
-        <div className="text-center py-12">
-          <CpuChipIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-            {searchTerm || filterStatus !== 'all' ? 'No matching servers' : 'No MCP servers'}
-          </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {searchTerm || filterStatus !== 'all'
-              ? 'Try adjusting your search or filter criteria.'
-              : 'Get started by generating your first MCP server.'
-            }
-          </p>
-          {!searchTerm && filterStatus === 'all' && (
-            <div className="mt-6">
-              <Link
-                href="/dashboard/mcp-servers/new"
-                className="btn-primary"
-              >
-                <PlusIcon className="h-4 w-4 mr-2" />
-                Generate Server
-              </Link>
-            </div>
-          )}
-        </div>
+        <Card>
+          <CardContent className="text-center py-12">
+            <Server className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
+              {searchTerm || filterStatus !== 'all' ? 'No matching servers' : 'No MCP servers'}
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              {searchTerm || filterStatus !== 'all'
+                ? 'Try adjusting your search or filter criteria.'
+                : 'Get started by generating your first MCP server.'
+              }
+            </p>
+            {!searchTerm && filterStatus === 'all' && (
+              <Button asChild>
+                <Link href="/dashboard/mcp-servers/new">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Generate Server
+                </Link>
+              </Button>
+            )}
+          </CardContent>
+        </Card>
       ) : (
         <>
           {/* Grid View */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filteredServers.map((server) => (
-              <div key={server.id} className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
+              <Card key={server.id} className="hover:shadow-lg transition-all duration-200">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
                       {getStatusIcon(server.status)}
-                      <h3 className="ml-2 text-lg font-medium text-gray-900 dark:text-white truncate">
+                      <CardTitle className="text-lg truncate">
                         {server.name}
-                      </h3>
+                      </CardTitle>
                     </div>
-                    <Menu as="div" className="relative">
-                      <Menu.Button className="p-2 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                        <EllipsisVerticalIcon className="h-5 w-5" />
-                      </Menu.Button>
-                      <Transition
-                        as={Fragment}
-                        enter="transition ease-out duration-100"
-                        enterFrom="transform opacity-0 scale-95"
-                        enterTo="transform opacity-100 scale-100"
-                        leave="transition ease-in duration-75"
-                        leaveFrom="transform opacity-100 scale-100"
-                        leaveTo="transform opacity-0 scale-95"
-                      >
-                        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white dark:bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                          <div className="py-1">
-                            <Menu.Item>
-                              {({ active }) => (
-                                <Link
-                                  href={`/dashboard/mcp-servers/${server.id}`}
-                                  className={`${
-                                    active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                  } block px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
-                                >
-                                  View Details
-                                </Link>
-                              )}
-                            </Menu.Item>
-                            {server.status === 'ready' && (
-                              <Menu.Item>
-                                {({ active }) => (
-                                  <Link
-                                    href={`/dashboard/deployments/new?server=${server.id}`}
-                                    className={`${
-                                      active ? 'bg-gray-100 dark:bg-gray-700' : ''
-                                    } block px-4 py-2 text-sm text-gray-700 dark:text-gray-300`}
-                                  >
-                                    Deploy Server
-                                  </Link>
-                                )}
-                              </Menu.Item>
-                            )}
-                          </div>
-                        </Menu.Items>
-                      </Transition>
-                    </Menu>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
                   </div>
-
-                  <div className="mb-4">
+                  <div className="mt-2">
                     {getStatusBadge(server.status)}
                   </div>
+                </CardHeader>
 
+                <CardContent className="space-y-4">
                   {server.description && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {server.description}
                     </p>
                   )}
 
-                  <div className="space-y-2 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="space-y-2 text-xs text-muted-foreground">
                     {server.docker_image_name && (
                       <div>
                         <span className="font-medium">Image:</span> {server.docker_image_name}:{server.docker_image_tag}
@@ -285,23 +268,29 @@ export default function MCPServersPage() {
                   </div>
 
                   {server.error_message && (
-                    <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
-                      <p className="text-sm text-red-600 dark:text-red-400">
+                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                      <p className="text-sm text-destructive">
                         {server.error_message}
                       </p>
                     </div>
                   )}
 
-                  <div className="mt-6 flex justify-end">
-                    <Link
-                      href={`/dashboard/mcp-servers/${server.id}`}
-                      className="btn-outline btn-sm"
-                    >
-                      View Details
-                    </Link>
+                  <div className="flex justify-between items-center pt-4">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/dashboard/mcp-servers/${server.id}`}>
+                        View Details
+                      </Link>
+                    </Button>
+                    {server.status === 'ready' && (
+                      <Button variant="default" size="sm" asChild>
+                        <Link href={`/dashboard/deployments/new?server=${server.id}`}>
+                          Deploy
+                        </Link>
+                      </Button>
+                    )}
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </>

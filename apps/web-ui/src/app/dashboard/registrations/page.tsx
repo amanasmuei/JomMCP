@@ -5,18 +5,21 @@ import { useQuery } from '@tanstack/react-query';
 import { registrationsApi } from '@/lib/api/registrations';
 import { APIRegistration } from '@/types/api';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
 import {
-  PlusIcon,
-  MagnifyingGlassIcon,
-  FunnelIcon,
-  EllipsisVerticalIcon,
-  CpuChipIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  XCircleIcon,
-} from '@heroicons/react/24/outline';
-import { Menu, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+  Plus,
+  Search,
+  Filter,
+  MoreVertical,
+  Database,
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  LayoutDashboard,
+} from 'lucide-react';
 
 export default function RegistrationsPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,8 +29,8 @@ export default function RegistrationsPage() {
 
   const { data: registrationsData, isLoading, error } = useQuery({
     queryKey: ['api-registrations', currentPage, pageSize, searchTerm, filterType],
-    queryFn: () => registrationsApi.list({ 
-      page: currentPage, 
+    queryFn: () => registrationsApi.list({
+      page: currentPage,
       size: pageSize,
       search: searchTerm || undefined,
       api_type: filterType !== 'all' ? filterType : undefined,
@@ -40,110 +43,120 @@ export default function RegistrationsPage() {
   const getStatusIcon = (registration: APIRegistration) => {
     // This would be based on health check status in a real implementation
     const isHealthy = true; // Placeholder
-    
+
     if (isHealthy) {
-      return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
     } else {
-      return <XCircleIcon className="h-5 w-5 text-red-500" />;
+      return <XCircle className="h-4 w-4 text-red-500" />;
     }
   };
 
   const getStatusBadge = (registration: APIRegistration) => {
     const isHealthy = true; // Placeholder
-    
+
     if (isHealthy) {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-          Active
-        </span>
-      );
+      return <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">Active</Badge>;
     } else {
-      return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-          Inactive
-        </span>
-      );
+      return <Badge variant="destructive">Inactive</Badge>;
     }
   };
 
   const filteredRegistrations = registrations.filter(registration => {
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       registration.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       registration.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       registration.base_url.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesFilter = filterType === 'all' || registration.api_type === filterType;
-    
+
     return matchesSearch && matchesFilter;
   });
 
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { label: 'API Registrations', icon: Database }
+  ];
+
   if (error) {
     return (
-      <div className="p-6">
-        <div className="text-center py-12">
-          <ExclamationTriangleIcon className="mx-auto h-12 w-12 text-red-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
-            Error loading registrations
-          </h3>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Please try again later.
-          </p>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="mb-6">
+          <Breadcrumb items={breadcrumbItems} />
         </div>
+        <Card>
+          <CardContent className="text-center py-12">
+            <AlertTriangle className="mx-auto h-12 w-12 text-destructive mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
+              Error loading registrations
+            </h3>
+            <p className="text-muted-foreground">
+              Please try again later.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* Breadcrumb Navigation */}
+      <div className="mb-6">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">API Registrations</h1>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <h1 className="text-3xl font-bold text-foreground mb-2">API Registrations</h1>
+            <p className="text-muted-foreground text-lg">
               Manage your registered APIs and their configurations
             </p>
           </div>
-          <Link
-            href="/dashboard/registrations/new"
-            className="btn-primary"
-          >
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Register API
-          </Link>
+          <Button asChild>
+            <Link href="/dashboard/registrations/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Register API
+            </Link>
+          </Button>
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search registrations..."
-              className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+      <Card className="mb-6">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search registrations..."
+                  className="pl-10 pr-4 py-2 w-full border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <select
+                className="border border-border rounded-md bg-background text-foreground px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-colors"
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+              >
+                <option value="all">All Types</option>
+                <option value="rest">REST API</option>
+                <option value="graphql">GraphQL</option>
+                <option value="soap">SOAP</option>
+                <option value="grpc">gRPC</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <FunnelIcon className="h-4 w-4 text-gray-400" />
-          <select
-            className="border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-          >
-            <option value="all">All Types</option>
-            <option value="rest">REST API</option>
-            <option value="graphql">GraphQL</option>
-            <option value="soap">SOAP</option>
-            <option value="grpc">gRPC</option>
-            <option value="custom">Custom</option>
-          </select>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Content */}
       {isLoading ? (
@@ -158,7 +171,7 @@ export default function RegistrationsPage() {
             {searchTerm || filterType !== 'all' ? 'No matching registrations' : 'No API registrations'}
           </h3>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            {searchTerm || filterType !== 'all' 
+            {searchTerm || filterType !== 'all'
               ? 'Try adjusting your search or filter criteria.'
               : 'Get started by registering your first API.'
             }

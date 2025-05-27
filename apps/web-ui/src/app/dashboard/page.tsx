@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Breadcrumb, BreadcrumbItem } from '@/components/ui/breadcrumb';
 import { formatRelativeTime, getStatusColor } from '@/lib/utils';
 import {
   Plus,
@@ -24,6 +25,7 @@ import {
   TrendingUp,
   Users,
   Zap,
+  LayoutDashboard,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -60,12 +62,23 @@ export default function DashboardPage() {
     return <div>Loading...</div>;
   }
 
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: 'Dashboard', icon: LayoutDashboard }
+  ];
+
   return (
-    <div className="page-container">
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* Breadcrumb Navigation */}
+      <div className="mb-6">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+
       {/* Welcome Section */}
-      <div className="page-header">
-        <h1 className="page-title">Welcome back, {user.username}</h1>
-        <p className="page-description">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground mb-2">
+          Welcome back, {user.username}!
+        </h1>
+        <p className="text-muted-foreground text-lg">
           Manage your API registrations and MCP servers from your dashboard
         </p>
       </div>
