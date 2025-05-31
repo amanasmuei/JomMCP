@@ -60,7 +60,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -72,23 +72,23 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <div
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
+          'fixed inset-y-0 left-0 z-50 w-64 bg-neutral-900 border-r border-neutral-800 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-between h-16 px-6 border-b border-border">
+          <div className="flex items-center justify-between h-16 px-6 border-b border-neutral-800">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">J</span>
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">J</span>
               </div>
-              <span className="text-xl font-bold">JomMCP</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">JomMCP</span>
             </Link>
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="lg:hidden text-white hover:bg-neutral-800"
               onClick={() => setSidebarOpen(false)}
             >
               <X className="h-5 w-5" />
@@ -106,12 +106,17 @@ export default function DashboardLayout({
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'jom-nav-item',
-                    isActive && 'jom-nav-item-active'
+                    'flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group',
+                    isActive
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                      : 'text-neutral-400 hover:text-white hover:bg-neutral-800'
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <item.icon className="h-5 w-5 mr-3" />
+                  <item.icon className={cn(
+                    "h-5 w-5 mr-3 transition-transform duration-200",
+                    isActive ? "scale-110" : "group-hover:scale-105"
+                  )} />
                   {item.name}
                 </Link>
               );
@@ -119,27 +124,27 @@ export default function DashboardLayout({
           </nav>
 
           {/* WebSocket Status */}
-          <div className="px-4 py-2 border-t border-border">
+          <div className="px-4 py-2 border-t border-neutral-800">
             <div className="flex items-center space-x-2 text-sm">
               <div className={cn(
                 'w-2 h-2 rounded-full',
-                isConnected ? 'bg-success-500' : 'bg-error-500'
+                isConnected ? 'bg-green-500' : 'bg-red-500'
               )} />
-              <span className="text-muted-foreground">
+              <span className="text-neutral-400">
                 {isConnected ? 'Connected' : 'Disconnected'}
               </span>
             </div>
           </div>
 
           {/* User info */}
-          <div className="px-4 py-4 border-t border-border">
+          <div className="px-4 py-4 border-t border-neutral-800">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                <User className="h-4 w-4 text-primary-foreground" />
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                <User className="h-4 w-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user?.full_name || user?.username}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                <p className="text-sm font-medium truncate text-white">{user?.full_name || user?.username}</p>
+                <p className="text-xs text-neutral-400 truncate">{user?.email}</p>
               </div>
             </div>
           </div>
@@ -149,19 +154,19 @@ export default function DashboardLayout({
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <header className="h-16 bg-background border-b border-border flex items-center justify-between px-6">
+        <header className="h-16 bg-neutral-900 border-b border-neutral-800 flex items-center justify-between px-6">
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="lg:hidden text-white hover:bg-neutral-800"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="h-5 w-5" />
             </Button>
 
             <div className="hidden lg:block">
-              <h1 className="text-xl font-semibold">
+              <h1 className="text-xl font-semibold text-white">
                 {navigation.find(item =>
                   pathname === item.href ||
                   (item.href !== '/dashboard' && pathname.startsWith(item.href))
@@ -175,6 +180,7 @@ export default function DashboardLayout({
             <Button
               variant="ghost"
               size="icon"
+              className="text-white hover:bg-neutral-800"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -183,18 +189,19 @@ export default function DashboardLayout({
             </Button>
 
             {/* Notifications */}
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="text-white hover:bg-neutral-800">
               <Bell className="h-5 w-5" />
             </Button>
 
             {/* User menu */}
             <div className="flex items-center space-x-2">
-              <Badge variant="secondary" className="hidden sm:inline-flex">
+              <Badge variant="secondary" className="hidden sm:inline-flex bg-neutral-700 text-neutral-200">
                 {user?.role}
               </Badge>
               <Button
                 variant="ghost"
                 size="icon"
+                className="text-white hover:bg-neutral-800"
                 onClick={handleLogout}
                 title="Logout"
               >
@@ -205,7 +212,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page content */}
-        <main className="p-6">
+        <main className="p-6 bg-black min-h-screen">
           {children}
         </main>
       </div>
