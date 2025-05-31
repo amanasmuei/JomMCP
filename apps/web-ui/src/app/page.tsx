@@ -7,6 +7,7 @@ import { TextGenerateEffect } from '@/components/aceternity/sparkles';
 import { HoverEffect } from '@/components/aceternity/card-hover-effect';
 import { BentoGrid, BentoGridItem } from '@/components/aceternity/bento-grid';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/ui/logo';
 import { FloatingNav } from '@/components/aceternity/floating-navbar';
 import { ProcessTimeline } from '@/components/landing/process-timeline';
 import { InteractiveDemo } from '@/components/landing/interactive-demo';
@@ -40,14 +41,11 @@ export default function HomePage() {
       <nav className="relative z-50 border-b border-neutral-800 bg-black/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">J</span>
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                JomMCP
-              </span>
-            </div>
+            <Logo
+              variant="default"
+              href="/"
+              animated={true}
+            />
             <div className="flex items-center space-x-4">
               <Link
                 href="/auth/login"
@@ -409,13 +407,12 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* Brand */}
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-xl">J</span>
-                </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  JomMCP Platform
-                </span>
+              <div className="mb-6">
+                <Logo
+                  variant="default"
+                  showText={true}
+                  href="/"
+                />
               </div>
               <p className="text-neutral-400 mb-6 max-w-md">
                 Automate your API to MCP server conversion with our powerful platform.

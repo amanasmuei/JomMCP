@@ -26,6 +26,7 @@ import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Logo } from '@/components/ui/logo';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useWebSocket } from '@/components/providers/websocket-provider';
 import { cn } from '@/lib/utils';
@@ -79,12 +80,11 @@ export default function DashboardLayout({
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-between h-16 px-6 border-b border-neutral-800">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">J</span>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">JomMCP</span>
-            </Link>
+            <Logo
+              variant="compact"
+              href="/dashboard"
+              animated={true}
+            />
             <Button
               variant="ghost"
               size="icon"
