@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Production Ready](https://img.shields.io/badge/Production-Ready-brightgreen?style=for-the-badge)](docs/architecture/production-readiness.md)
 
-[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🏗️ Architecture](#️-architecture) • [🤝 Contributing](#-contributing)
+[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🏗️ Architecture](#️-architecture) • [🤝 Contributing](#-contributing) • [📋 Setup Guide](docs/user-guides/QUICK_SETUP.md)
 
 </div>
 
@@ -97,11 +97,36 @@ jommcp/
 Get started in under 2 minutes with our automated installer:
 
 ```bash
-# 🐳 Start with Docker Compose
-docker-compose -f infrastructure/docker/docker-compose.yml up -d
+# 🎯 Automated Setup (Recommended)
+curl -fsSL https://raw.githubusercontent.com/jommcp/jommcp/main/scripts/install.sh | bash
 
 # 🌐 Open the platform
 open http://localhost:3000
+```
+
+**Alternative Docker Setup:**
+```bash
+# 🐳 Docker Compose (Simple)
+docker-compose up -d
+
+# 🌐 Open the platform
+open http://localhost:3000
+```
+
+### 🛠️ Interactive Setup Wizard
+
+**For guided setup with customization:**
+
+```bash
+# 📋 Interactive setup wizard
+./scripts/setup-wizard.sh
+
+# Follow the prompts to configure:
+# ✅ Environment (development/production)
+# ✅ Database settings
+# ✅ Authentication keys
+# ✅ Service ports
+# ✅ Optional features
 ```
 
 ### 🔧 Development Setup
@@ -113,34 +138,27 @@ open http://localhost:3000
 git clone https://github.com/jommcp/jommcp.git
 cd jommcp
 
-# 2️⃣ Start infrastructure
-docker-compose -f infrastructure/docker/docker-compose.yml up -d postgres redis
+# 2️⃣ Run development setup
+./scripts/dev-setup.sh
 
-# 3️⃣ Install Python dependencies
-pip install -r config/requirements.txt
+# 3️⃣ Start all services
+./scripts/start-dev.sh
 
-# 4️⃣ Start services (in separate terminals)
-# API Gateway
-PYTHONPATH=packages:apps python apps/api-gateway/main.py
-
-# Registration Service  
-python apps/registration-service/run.py
-
-# 5️⃣ Start frontend
-cd apps/web-ui && npm install && npm run dev
+# 4️⃣ Verify installation
+./scripts/health-check.sh
 ```
 
 ### 🧪 Verify Installation
 
 ```bash
-# Test API Gateway
-curl http://localhost:8000/health
+# 🔍 Comprehensive health check
+./scripts/health-check.sh
 
-# Test Registration Service
-curl http://localhost:8081/api/v1/health
+# 🌐 Quick service status
+./scripts/status.sh
 
-# Test Frontend
-open http://localhost:3000
+# 🧪 Run integration tests
+./scripts/test-setup.sh
 ```
 
 ---
