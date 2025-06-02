@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
 COPY ./apps/docs-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy shared core package
+COPY ./packages/core ./core
+
 # Copy application code
 COPY ./apps/docs-service .
 
