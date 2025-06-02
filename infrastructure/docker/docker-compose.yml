@@ -30,7 +30,7 @@ services:
   # Registration Service
   registration-service:
     build:
-      context: ./registration-service
+      context: ../../apps/registration-service
       dockerfile: Dockerfile
     container_name: mcp-hub-registration
     environment:
@@ -50,7 +50,7 @@ services:
   # Generator Service
   generator-service:
     build:
-      context: ./generator-service
+      context: ../../apps/generator-service
       dockerfile: Dockerfile
     container_name: mcp-hub-generator
     environment:
@@ -70,7 +70,7 @@ services:
   # Deployment Service
   deployment-service:
     build:
-      context: ./deployment-service
+      context: ../../apps/deployment-service
       dockerfile: Dockerfile
     container_name: mcp-hub-deployment
     environment:
@@ -92,7 +92,7 @@ services:
   # Documentation Service
   docs-service:
     build:
-      context: ./docs-service
+      context: ../../apps/docs-service
       dockerfile: Dockerfile
     container_name: mcp-hub-docs
     environment:
@@ -115,7 +115,7 @@ services:
   # API Gateway
   api-gateway:
     build:
-      context: ./api-gateway
+      context: ../../apps/api-gateway
       dockerfile: Dockerfile
     container_name: mcp-hub-gateway
     environment:
@@ -139,7 +139,7 @@ services:
   # Web UI (Development)
   web-ui:
     build:
-      context: ./web-ui
+      context: ../../apps/web-ui
       dockerfile: Dockerfile.dev
     container_name: mcp-hub-web-ui
     environment:
@@ -148,8 +148,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./web-ui/src:/app/src
-      - ./web-ui/public:/app/public
+      - ../../apps/web-ui/src:/app/src
+      - ../../apps/web-ui/public:/app/public
     networks:
       - mcp-hub-network
     restart: unless-stopped
@@ -162,8 +162,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/ssl:/etc/nginx/ssl
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../nginx/ssl:/etc/nginx/ssl
     depends_on:
       - registration-service
       - generator-service
@@ -181,7 +181,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     networks:
       - mcp-hub-network
@@ -197,8 +197,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ../monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ../monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
     networks:
       - mcp-hub-network
     restart: unless-stopped

@@ -186,10 +186,15 @@ EOF
 start_services() {
     log_step "Starting JomMCP services..."
     
-    # Use the correct docker-compose file path
-    local compose_file="docker-compose.yml"
-    if [ -f "infrastructure/docker/docker-compose.yml" ]; then
+    # Use the correct docker-compose file path (prefer root level)
+    local compose_file=""
+    if [ -f "docker-compose.yml" ]; then
+        compose_file="docker-compose.yml"
+    elif [ -f "infrastructure/docker/docker-compose.yml" ]; then
         compose_file="infrastructure/docker/docker-compose.yml"
+    else
+        log_error "No docker-compose.yml file found!"
+        exit 1
     fi
     
     log_info "Using compose file: $compose_file"
