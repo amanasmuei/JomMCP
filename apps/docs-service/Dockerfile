@@ -17,6 +17,9 @@ COPY ./packages/core ./core
 # Copy application code
 COPY ./apps/docs-service .
 
+# Add current directory to Python path to ensure core module is accessible
+ENV PYTHONPATH="/app"
+
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser

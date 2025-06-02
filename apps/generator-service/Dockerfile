@@ -48,6 +48,9 @@ WORKDIR /app
 COPY ./apps/generator-service .
 COPY ./packages/core ./core
 
+# Add current directory to Python path to ensure core module is accessible
+ENV PYTHONPATH="/app"
+
 # Change ownership to non-root user
 RUN chown -R mcphub:mcphub /app
 

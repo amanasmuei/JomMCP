@@ -34,10 +34,17 @@ const nextConfig = {
     ],
   },
   webpack: (config, { dev, isServer }) => {
-    // Improve webpack caching
+    // Improve webpack caching and ensure path aliases work
+    const path = require('path');
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': require('path').resolve(__dirname, 'src'),
+      '@': path.resolve(__dirname, 'src'),
+      '@/components': path.resolve(__dirname, 'src/components'),
+      '@/lib': path.resolve(__dirname, 'src/lib'),
+      '@/hooks': path.resolve(__dirname, 'src/hooks'),
+      '@/types': path.resolve(__dirname, 'src/types'),
+      '@/utils': path.resolve(__dirname, 'src/utils'),
+      '@/styles': path.resolve(__dirname, 'src/styles'),
     };
 
     // Optimize for development
