@@ -446,8 +446,8 @@ export default function DeploymentDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="bg-black text-green-400 p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
-                    {logs ? (
-                      <pre className="whitespace-pre-wrap">{logs}</pre>
+                    {logs?.logs ? (
+                      <pre className="whitespace-pre-wrap">{logs.logs}</pre>
                     ) : (
                       <p className="text-muted-foreground">No logs available</p>
                     )}

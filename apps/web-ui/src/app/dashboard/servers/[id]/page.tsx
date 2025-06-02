@@ -231,7 +231,6 @@ export default function MCPServerDetailPage() {
                 {server.status === 'pending' && 'Waiting to start generation...'}
                 {server.status === 'generating' && 'Generating MCP server code...'}
                 {server.status === 'building' && 'Building Docker image...'}
-                {server.status === 'testing' && 'Running tests...'}
               </p>
             </div>
           </CardContent>
@@ -363,8 +362,8 @@ export default function MCPServerDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="bg-black text-green-400 p-4 rounded-lg font-mono text-sm max-h-96 overflow-y-auto">
-                    {logs ? (
-                      <pre className="whitespace-pre-wrap">{logs}</pre>
+                    {logs?.logs ? (
+                      <pre className="whitespace-pre-wrap">{logs.logs}</pre>
                     ) : (
                       <p className="text-muted-foreground">No logs available</p>
                     )}
