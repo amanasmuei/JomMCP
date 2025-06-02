@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Zap, Shield, Globe, Code, Rocket, BarChart3, Upload, Settings, Play, Monitor, FileText, Database } from 'lucide-react';
+import { ArrowRight, CheckCircle, Zap, Shield, Globe, Code, Rocket, BarChart3, Upload, Settings, Play, Monitor, FileText, Database, Star } from 'lucide-react';
 import { HeroHighlight, Highlight } from '@/components/aceternity/hero-highlight';
 import { TextGenerateEffect } from '@/components/aceternity/sparkles';
 import { HoverEffect } from '@/components/aceternity/card-hover-effect';
@@ -13,6 +13,9 @@ import { ProcessTimeline } from '@/components/landing/process-timeline';
 import { InteractiveDemo } from '@/components/landing/interactive-demo';
 import { MetricsShowcase } from '@/components/landing/metrics-showcase';
 import { VisualFlow } from '@/components/landing/visual-flow';
+import { TestimonialsSection } from '@/components/landing/testimonials';
+import { PricingSection } from '@/components/landing/pricing-section';
+import { FAQSection } from '@/components/landing/faq-section';
 
 const navItems = [
   {
@@ -70,7 +73,15 @@ export default function HomePage() {
             {/* Status Badge */}
             <div className="mb-8 inline-flex items-center px-4 py-2 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 backdrop-blur-sm">
               <CheckCircle className="w-4 h-4 mr-2" />
-              Platform Ready
+              Platform Ready • Trusted by 10K+ Developers
+            </div>
+
+            {/* Social Proof */}
+            <div className="mb-6 flex items-center justify-center space-x-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+              ))}
+              <span className="ml-2 text-neutral-400 text-sm">4.9/5 from 2,000+ reviews</span>
             </div>
 
             {/* Main Heading */}
@@ -376,28 +387,61 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <TestimonialsSection />
+
+      {/* Pricing Section */}
+      <PricingSection />
+
+      {/* FAQ Section */}
+      <FAQSection />
+
       {/* Final CTA Section */}
       <section className="py-24 px-4 bg-gradient-to-br from-blue-950/20 via-purple-950/20 to-black">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-white">
-            Ready to <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Transform</span> Your APIs?
-          </h2>
-          <p className="text-xl text-neutral-400 mb-12 max-w-2xl mx-auto">
-            Join thousands of developers who are already using JomMCP to automate their API to MCP server workflows.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button asChild size="lg" className="group">
-              <Link href="/auth/register">
-                Start Free Today
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/dashboard">
-                View Demo
-              </Link>
-            </Button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-white">
+              Ready to <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Transform</span> Your APIs?
+            </h2>
+            <p className="text-xl text-neutral-400 mb-8 max-w-2xl mx-auto">
+              Join thousands of developers who are already using JomMCP to automate their API to MCP server workflows.
+            </p>
+            
+            {/* Trust Indicators */}
+            <div className="flex items-center justify-center space-x-8 mb-12 text-sm text-neutral-500">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>14-day free trial</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>No credit card required</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-4 h-4 text-green-400" />
+                <span>Cancel anytime</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button asChild size="lg" className="group">
+                <Link href="/auth/register">
+                  Start Free Today
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/dashboard">
+                  View Live Demo
+                </Link>
+              </Button>
+            </div>
+          </motion.div>
         </div>
       </section>
 

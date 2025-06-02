@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { motion, stagger, useAnimate } from "framer-motion";
+import { motion, stagger, useAnimate, useInView } from "framer-motion";
 import { useEffect } from "react";
 
 export const TextGenerateEffect = ({
@@ -15,20 +15,24 @@ export const TextGenerateEffect = ({
   duration?: number;
 }) => {
   const [scope, animate] = useAnimate();
+  const isInView = useInView(scope);
   let wordsArray = words.split(" ");
+
   useEffect(() => {
-    animate(
-      "span",
-      {
-        opacity: 1,
-        filter: filter ? "blur(0px)" : "none",
-      },
-      {
-        duration: duration ? duration : 1,
-        delay: stagger(0.2),
-      }
-    );
-  }, [scope.current]);
+    if (isInView) {
+      animate(
+        "span",
+        {
+          opacity: 1,
+          filter: filter ? "blur(0px)" : "none",
+        },
+        {
+          duration: duration ? duration : 1,
+          delay: stagger(0.2),
+        }
+      );
+    }
+  }, [isInView, animate, duration, filter]);
 
   const renderWords = () => {
     return (
@@ -53,7 +57,7 @@ export const TextGenerateEffect = ({
   return (
     <div className={cn("font-bold", className)}>
       <div className="mt-4">
-        <div className=" dark:text-white text-black text-2xl leading-snug tracking-wide">
+        <div className="dark:text-white text-black text-2xl leading-snug tracking-wide">
           {renderWords()}
         </div>
       </div>
@@ -86,18 +90,18 @@ export const SparklesCore = ({
       >
         <defs>
           <pattern
-            id={id || "sparkles"}
+            id={id}
             x="0"
             y="0"
-            width="100"
-            height="100"
+            width="40"
+            height="40"
             patternUnits="userSpaceOnUse"
           >
             <circle
-              cx="25"
-              cy="25"
-              r={minSize || 1}
-              fill={particleColor || "#FFF"}
+              cx="20"
+              cy="20"
+              r="1"
+              fill={particleColor || "#ffffff"}
               opacity="0.5"
             >
               <animate
@@ -107,26 +111,13 @@ export const SparklesCore = ({
                 repeatCount="indefinite"
               />
             </circle>
-            <circle
-              cx="75"
-              cy="75"
-              r={maxSize || 2}
-              fill={particleColor || "#FFF"}
-              opacity="0.3"
-            >
-              <animate
-                attributeName="opacity"
-                values="0.3;0.8;0.3"
-                dur="3s"
-                repeatCount="indefinite"
-              />
-            </circle>
           </pattern>
         </defs>
         <rect
           width="100%"
           height="100%"
-          fill={`url(#${id || "sparkles"})`}
+          fill={`url(#${id})`}
+          opacity="0.3"
         />
       </svg>
     </div>
