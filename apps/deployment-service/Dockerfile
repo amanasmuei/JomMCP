@@ -45,7 +45,7 @@ WORKDIR /app
 
 # Copy application code
 COPY . .
-COPY ../core ./core
+COPY ../../packages/core ./core
 
 # Change ownership to non-root user
 RUN chown -R mcphub:mcphub /app
