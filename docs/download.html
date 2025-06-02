@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download JomMCP Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .download-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .download-option {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .download-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .download-option h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .download-option .icon {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .download-option p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .download-btn {
+            background: #667eea;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: background 0.3s ease;
+            margin-right: 0.5rem;
+        }
+        
+        .download-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .download-btn.secondary {
+            background: #6c757d;
+        }
+        
+        .download-btn.secondary:hover {
+            background: #5a6268;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        
+        .requirements {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .requirements h4 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+        }
+        
+        .requirements ul {
+            margin-left: 1.5rem;
+            color: #856404;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 3rem;
+            opacity: 0.8;
+        }
+        
+        .footer a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 JomMCP</h1>
+            <p>Transform your APIs into AI-ready MCP servers</p>
+            <p><em>Mari ubah API anda menjadi MCP server yang siap untuk AI</em></p>
+        </div>
+        
+        <div class="download-card">
+            <h2>⚡ One-Command Installation</h2>
+            <p>Get started in under 2 minutes with our automated installer:</p>
+            
+            <div class="download-option">
+                <h3><span class="icon">🎯</span>Recommended: Automated Setup</h3>
+                <p>Downloads and installs JomMCP automatically with all dependencies.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard('install-cmd')">Copy</button>
+                    <code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/amanasmuei/JomMCP/main/scripts/web-install.sh | bash</code>
+                </div>
+            </div>
+        </div>
+        
+        <div class="download-card">
+            <h2>📥 Manual Download Options</h2>
+            
+            <div class="download-option">
+                <h3><span class="icon">📦</span>Download ZIP Archive</h3>
+                <p>Download the complete platform as a ZIP file.</p>
+                <a href="https://github.com/amanasmuei/JomMCP/archive/refs/heads/main.zip" class="download-btn">
+                    Download ZIP
+                </a>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard('zip-cmd')">Copy</button>
+                    <code id="zip-cmd">curl -L -o jommcp.zip https://github.com/amanasmuei/JomMCP/archive/refs/heads/main.zip
+unzip jommcp.zip
+cd JomMCP-main
+./scripts/install.sh</code>
+                </div>
+            </div>
+            
+            <div class="download-option">
+                <h3><span class="icon">📋</span>Download TAR.GZ Archive</h3>
+                <p>Download the complete platform as a compressed tarball.</p>
+                <a href="https://github.com/amanasmuei/JomMCP/archive/refs/heads/main.tar.gz" class="download-btn">
+                    Download TAR.GZ
+                </a>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard('tar-cmd')">Copy</button>
+                    <code id="tar-cmd">curl -L -o jommcp.tar.gz https://github.com/amanasmuei/JomMCP/archive/refs/heads/main.tar.gz
+tar -xzf jommcp.tar.gz
+cd JomMCP-main
+./scripts/install.sh</code>
+                </div>
+            </div>
+            
+            <div class="download-option">
+                <h3><span class="icon">🔧</span>Clone with Git</h3>
+                <p>Clone the repository for development or to get the latest updates.</p>
+                <a href="https://github.com/amanasmuei/JomMCP" class="download-btn secondary">
+                    View on GitHub
+                </a>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyToClipboard('git-cmd')">Copy</button>
+                    <code id="git-cmd">git clone https://github.com/amanasmuei/JomMCP.git
+cd JomMCP
+./scripts/install.sh</code>
+                </div>
+            </div>
+        </div>
+        
+        <div class="download-card">
+            <div class="requirements">
+                <h4>📋 System Requirements</h4>
+                <ul>
+                    <li>Docker 20.0.0+ and Docker Compose 2.0.0+</li>
+                    <li>4GB RAM minimum (8GB recommended)</li>
+                    <li>10GB free disk space</li>
+                    <li>curl or wget (for downloads)</li>
+                    <li>unzip or tar (for extraction)</li>
+                </ul>
+            </div>
+            
+            <h3>🚀 After Installation</h3>
+            <p>Once installed, access your JomMCP platform at:</p>
+            <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                <li><strong>Web UI:</strong> <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></li>
+                <li><strong>API Documentation:</strong> <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a></li>
+                <li><strong>Health Check:</strong> <a href="http://localhost:8000/health" target="_blank">http://localhost:8000/health</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>
+                <a href="https://github.com/amanasmuei/JomMCP">📖 Documentation</a> •
+                <a href="https://github.com/amanasmuei/JomMCP/issues">🐛 Issues</a> •
+                <a href="https://github.com/amanasmuei/JomMCP">⭐ Star on GitHub</a>
+            </p>
+            <p style="margin-top: 1rem;">Made with ❤️ by the JomMCP Team</p>
+        </div>
+    </div>
+    
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            
+            navigator.clipboard.writeText(text).then(function() {
+                const button = element.parentNode.querySelector('.copy-btn');
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#28a745';
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.style.background = '#667eea';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const button = element.parentNode.querySelector('.copy-btn');
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = '#28a745';
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

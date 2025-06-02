@@ -92,14 +92,58 @@ jommcp/
 
 ## 🚀 Quick Start
 
-> **📝 Note**: This is currently a local development project. Make sure you have the JomMCP project files in your current directory before running the setup commands.
+### ⚡ One-Command URL Install
 
-### ⚡ One-Command Setup
-
-Get started in under 2 minutes with our automated installer:
+Get started in under 2 minutes with our automated URL installer:
 
 ```bash
-# 🎯 Automated Setup (Recommended)
+# 🎯 One-Command Install (Recommended)
+curl -fsSL https://raw.githubusercontent.com/amanasmuei/JomMCP/main/scripts/web-install.sh | bash
+
+# 🌐 Open the platform
+open http://localhost:3000
+```
+
+**Alternative one-command installers:**
+```bash
+# Using download-install script
+curl -fsSL https://raw.githubusercontent.com/amanasmuei/JomMCP/main/scripts/download-install.sh | bash
+
+# Using wget instead of curl
+wget -qO- https://raw.githubusercontent.com/amanasmuei/JomMCP/main/scripts/web-install.sh | bash
+```
+
+> **🌐 Web Download Page**: For a user-friendly download experience, visit our [download page](docs/download.html) which provides clickable download options and copy-to-clipboard commands.
+
+### 📥 Manual Download & Install
+
+**Option 1: Download ZIP**
+```bash
+# Download latest release
+curl -L -o jommcp.zip https://github.com/amanasmuei/JomMCP/archive/refs/heads/main.zip
+unzip jommcp.zip
+cd JomMCP-main
+
+# Run installer
+./scripts/install.sh
+```
+
+**Option 2: Download TAR.GZ**
+```bash
+# Download latest release
+curl -L -o jommcp.tar.gz https://github.com/amanasmuei/JomMCP/archive/refs/heads/main.tar.gz
+tar -xzf jommcp.tar.gz
+cd JomMCP-main
+
+# Run installer
+./scripts/install.sh
+```
+
+### 🔧 Local Development Setup
+
+**For local development or if you already have the project files:**
+
+```bash
 # Navigate to the project directory
 cd jommcp
 
@@ -335,7 +379,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **⭐ Star this repository if you find it helpful!**
 
-**🤝 [Contribute](docs/user-guides/CONTRIBUTING.md) • 💬 Community (Coming Soon) • 📖 [Documentation](docs/) • 🐛 Issues (Coming Soon)**
+**🤝 [Contribute](docs/user-guides/CONTRIBUTING.md) • 💬 Community (Coming Soon) • 📖 [Documentation](docs/) • 🐛 [Issues](https://github.com/amanasmuei/JomMCP/issues)**
 
 **Made with ❤️ by the JomMCP Team**
 

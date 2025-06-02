@@ -112,7 +112,7 @@ detect_installation() {
 clone_repository() {
     log_step "Cloning JomMCP repository..."
     
-    local repo_url="https://github.com/jommcp/jommcp.git"
+    local repo_url="https://github.com/amanasmuei/JomMCP.git"
     local target_dir="jommcp"
     
     if [ -d "$target_dir" ]; then
