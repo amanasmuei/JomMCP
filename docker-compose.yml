@@ -41,8 +41,8 @@ services:
   # API Gateway
   api-gateway:
     build:
-      context: ./apps/api-gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
     container_name: jommcp-api-gateway
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-mcphub}:${POSTGRES_PASSWORD:-mcphub_dev_password}@postgres:5432/${POSTGRES_DB:-mcphub}
@@ -69,8 +69,8 @@ services:
   # Registration Service
   registration-service:
     build:
-      context: ./apps/registration-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/registration-service/Dockerfile
     container_name: jommcp-registration
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-mcphub}:${POSTGRES_PASSWORD:-mcphub_dev_password}@postgres:5432/${POSTGRES_DB:-mcphub}
@@ -96,8 +96,8 @@ services:
   # Generator Service
   generator-service:
     build:
-      context: ./apps/generator-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/generator-service/Dockerfile
     container_name: jommcp-generator
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-mcphub}:${POSTGRES_PASSWORD:-mcphub_dev_password}@postgres:5432/${POSTGRES_DB:-mcphub}
@@ -123,8 +123,8 @@ services:
   # Deployment Service
   deployment-service:
     build:
-      context: ./apps/deployment-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/deployment-service/Dockerfile
     container_name: jommcp-deployment
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-mcphub}:${POSTGRES_PASSWORD:-mcphub_dev_password}@postgres:5432/${POSTGRES_DB:-mcphub}
@@ -152,8 +152,8 @@ services:
   # Documentation Service
   docs-service:
     build:
-      context: ./apps/docs-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/docs-service/Dockerfile
     container_name: jommcp-docs
     environment:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-mcphub}:${POSTGRES_PASSWORD:-mcphub_dev_password}@postgres:5432/${POSTGRES_DB:-mcphub}
@@ -182,8 +182,8 @@ services:
   # Web UI
   web-ui:
     build:
-      context: ./apps/web-ui
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: ./apps/web-ui/Dockerfile.dev
     container_name: jommcp-web-ui
     environment:
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:${API_GATEWAY_PORT:-8000}

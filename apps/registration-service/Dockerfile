@@ -18,7 +18,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy requirements and install Python dependencies
-COPY requirements.txt .
+COPY ./apps/registration-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Production stage
@@ -44,8 +44,8 @@ RUN groupadd -r mcphub && useradd -r -g mcphub mcphub
 WORKDIR /app
 
 # Copy application code
-COPY . .
-COPY ../../packages/core ./core
+COPY ./apps/registration-service .
+COPY ./packages/core ./core
 
 # Change ownership to non-root user
 RUN chown -R mcphub:mcphub /app
