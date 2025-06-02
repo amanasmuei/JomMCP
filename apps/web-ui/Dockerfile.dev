@@ -4,6 +4,9 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
+# Install system dependencies
+RUN apk add --no-cache curl
+
 # Install dependencies
 COPY ./apps/web-ui/package.json ./apps/web-ui/package-lock.json* ./
 RUN npm install
