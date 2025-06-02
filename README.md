@@ -5,10 +5,10 @@
 **Jom transform your API! Let's make it AI-ready in minutes**
 ***Mari ubah API anda menjadi MCP server yang siap untuk AI***
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/jommcp/jommcp/ci.yml?branch=main&style=for-the-badge)](https://github.com/jommcp/jommcp/actions)
-[![Version](https://img.shields.io/github/v/release/jommcp/jommcp?style=for-the-badge&color=blue)](https://github.com/jommcp/jommcp/releases)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Production Ready](https://img.shields.io/badge/Production-Ready-brightgreen?style=for-the-badge)](docs/architecture/production-readiness.md)
+[![Development](https://img.shields.io/badge/Status-In%20Development-yellow?style=for-the-badge)](#)
+[![Local Setup](https://img.shields.io/badge/Setup-Local%20Development-blue?style=for-the-badge)](#-quick-start)
 
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🏗️ Architecture](#️-architecture) • [🤝 Contributing](#-contributing) • [📋 Setup Guide](docs/user-guides/QUICK_SETUP.md)
 
@@ -92,13 +92,19 @@ jommcp/
 
 ## 🚀 Quick Start
 
+> **📝 Note**: This is currently a local development project. Make sure you have the JomMCP project files in your current directory before running the setup commands.
+
 ### ⚡ One-Command Setup
 
 Get started in under 2 minutes with our automated installer:
 
 ```bash
 # 🎯 Automated Setup (Recommended)
-curl -fsSL https://raw.githubusercontent.com/jommcp/jommcp/main/scripts/install.sh | bash
+# Navigate to the project directory
+cd jommcp
+
+# Run the automated installer
+./scripts/install.sh
 
 # 🌐 Open the platform
 open http://localhost:3000
@@ -134,8 +140,7 @@ open http://localhost:3000
 **For contributors and advanced users:**
 
 ```bash
-# 1️⃣ Clone and setup
-git clone https://github.com/jommcp/jommcp.git
+# 1️⃣ Navigate to project directory
 cd jommcp
 
 # 2️⃣ Run development setup
@@ -330,7 +335,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **⭐ Star this repository if you find it helpful!**
 
-**🤝 [Contribute](docs/user-guides/CONTRIBUTING.md) • 💬 Community (Coming Soon) • 📖 [Documentation](docs/) • 🐛 [Issues](https://github.com/jommcp/jommcp/issues)**
+**🤝 [Contribute](docs/user-guides/CONTRIBUTING.md) • 💬 Community (Coming Soon) • 📖 [Documentation](docs/) • 🐛 Issues (Coming Soon)**
 
 **Made with ❤️ by the JomMCP Team**
 
