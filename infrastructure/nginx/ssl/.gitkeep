@@ -1,0 +1,8 @@
+# This directory contains SSL certificates
+# Add your SSL certificates here:
+# - cert.pem (certificate file)
+# - key.pem (private key file)
+# - dhparam.pem (Diffie-Hellman parameters, optional)
+
+# For development, use the generate-ssl-cert.sh script to create self-signed certificates
+# For production, use proper certificates from a CA like Let's Encrypt

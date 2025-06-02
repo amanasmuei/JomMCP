@@ -38,8 +38,8 @@ docker>=6.1.0
 prometheus-client>=0.18.0
 structlog>=23.0.0
 
-# MCP SDK - temporarily removed due to Python version compatibility
-# mcp>=1.0.0
+# MCP SDK
+mcp>=1.0.0
 
 # Development dependencies
 pytest==7.4.3

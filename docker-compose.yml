@@ -186,8 +186,8 @@ services:
       dockerfile: ./apps/web-ui/Dockerfile.dev
     container_name: jommcp-web-ui
     environment:
-      - NEXT_PUBLIC_API_BASE_URL=http://localhost:${API_GATEWAY_PORT:-8000}
-      - NEXT_PUBLIC_WS_BASE_URL=ws://localhost:${API_GATEWAY_PORT:-8000}
+      - NEXT_PUBLIC_API_BASE_URL=${DOMAIN_URL:-http://localhost:${API_GATEWAY_PORT:-8000}}
+      - NEXT_PUBLIC_WS_BASE_URL=${WS_DOMAIN_URL:-ws://localhost:${API_GATEWAY_PORT:-8000}}
     ports:
       - "${WEB_UI_PORT:-3000}:3000"
     volumes:
@@ -198,6 +198,36 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: jommcp-nginx
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./infrastructure/nginx/snippets:/etc/nginx/snippets:ro
+      - ./infrastructure/nginx/ssl:/etc/nginx/ssl:ro
+      - ./infrastructure/nginx/logs:/var/log/nginx
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME:-localhost}
+      - ENABLE_SSL=${ENABLE_SSL:-false}
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+      web-ui:
+        condition: service_healthy
+    networks:
+      - jommcp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
       interval: 30s
       timeout: 10s
       retries: 3

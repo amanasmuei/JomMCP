@@ -197,6 +197,36 @@ cd jommcp
 ./scripts/health-check.sh
 ```
 
+### 🌐 Domain & SSL Setup
+
+**Configure custom domain and SSL certificates:**
+
+```bash
+# 🌐 Setup custom domain (interactive)
+./scripts/setup-domain.sh
+
+# 🔒 Generate SSL certificates for development
+./scripts/generate-ssl-cert.sh
+
+# 🔧 Manage nginx service
+./scripts/nginx-manager.sh status    # Check nginx status
+./scripts/nginx-manager.sh reload    # Reload configuration
+./scripts/nginx-manager.sh logs      # View logs
+```
+
+**Quick domain examples:**
+
+```bash
+# For localhost development (default)
+DOMAIN_NAME=localhost
+DOMAIN_URL=http://localhost
+
+# For custom domain with SSL
+DOMAIN_NAME=jommcp.example.com
+DOMAIN_URL=https://jommcp.example.com
+ENABLE_SSL=true
+```
+
 ### 🧪 Verify Installation
 
 ```bash
